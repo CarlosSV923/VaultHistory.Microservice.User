@@ -31,7 +31,9 @@ namespace VaultHistory.User.Infrastructure.Database.ModelBuilders
                 e.Property(p => p.Value)
                     .HasColumnName("Email")
                     .IsRequired();
-            });
+            })
+            .HasIndex(e => e.Email.Value)
+            .IsUnique();
             
             builder.OwnsOne(u => u.FullName, fn =>
             {
@@ -41,6 +43,17 @@ namespace VaultHistory.User.Infrastructure.Database.ModelBuilders
                 
                 fn.Property(f => f.LastName)
                     .HasColumnName("LastName")
+                    .IsRequired();
+            });
+
+            builder.OwnsOne(u => u.Password, p =>
+            {
+                p.Property(p => p.Hash)
+                    .HasColumnName("PasswordHash")
+                    .IsRequired();
+                
+                p.Property(p => p.Salt)
+                    .HasColumnName("PasswordSalt")
                     .IsRequired();
             });
         }

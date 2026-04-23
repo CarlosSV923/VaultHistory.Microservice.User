@@ -36,7 +36,7 @@ namespace VaultHistory.User.Domain.Abstractions
 
         public static Result<T> Create<T>(T value)
         {
-            return value is not null ? Success(value) : Failure<T>(Error.NullValue);
+            return value is not null ? Success(value) : Failure<T>(Error.ReferenceNull);
         }
     }
 
