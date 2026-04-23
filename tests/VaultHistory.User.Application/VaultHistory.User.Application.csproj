@@ -18,8 +18,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\VaultHistory.User.Domain\VaultHistory.User.Domain.csproj" />
-  </ItemGroup>
-
 </Project>
