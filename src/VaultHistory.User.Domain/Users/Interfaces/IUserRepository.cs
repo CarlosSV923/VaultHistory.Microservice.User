@@ -1,5 +1,3 @@
-using System.Reflection.Metadata;
-
 namespace VaultHistory.User.Domain.Users.Interfaces
 {
     public interface IUserRepository

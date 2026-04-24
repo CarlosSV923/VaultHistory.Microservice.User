@@ -1,0 +1,44 @@
+using MediatR;
+using VaultHistory.User.Application.Abstractions;
+using VaultHistory.User.Application.Queries.GetUserByEmail;
+using VaultHistory.User.Domain.Abstractions;
+using VaultHistory.User.Domain.Users;
+
+namespace VaultHistory.User.Application.UseCases.GetUserByEmail
+{
+    internal sealed class GetUserByEmailUseCaseHandler(
+        IMediator mediator
+    ) : IUseCaseHandler<GetUserByEmailUseCase, GetUserByEmailResponseDTO>
+    {
+        public async Task<Result<GetUserByEmailResponseDTO>> Handle(GetUserByEmailUseCase request, CancellationToken cancellationToken)
+        {
+            var body = request.Request;
+
+            var emaulResult = Email.Create(body.Email);
+
+            if (emaulResult.IsFailure)
+            {
+                return Result.Failure<GetUserByEmailResponseDTO>(emaulResult.Error);
+            }
+
+            var userResult = await mediator.Send(new GetUserByEmailQuery(emaulResult.Value), cancellationToken);
+            if (userResult.IsFailure)
+            {
+                return Result.Failure<GetUserByEmailResponseDTO>(userResult.Error);
+            }
+
+            var user = userResult.Value;
+
+            var response = new GetUserByEmailResponseDTO(
+                user.Id.ToString(),
+                user.FullName.FirstName,
+                user.FullName.LastName,
+                user.Email.ToString(),
+                user.BirthDate,
+                user.IsActive
+            );
+
+            return Result.Success(response);
+        }
+    }
+}

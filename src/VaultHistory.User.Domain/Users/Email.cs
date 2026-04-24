@@ -12,7 +12,7 @@ namespace VaultHistory.User.Domain.Users
 
         public string Value { get; }
 
-        public static Result<Email> Create(string value)
+        public static Result<Email> Create(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {

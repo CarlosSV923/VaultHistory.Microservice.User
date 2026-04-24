@@ -11,21 +11,16 @@ namespace VaultHistory.User.Application.Queries.GetUserById
 
         public async Task<Result<Domain.Users.User>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
-                if (user is null)
-                {
-                    return Result.Failure<Domain.Users.User>(UserErrors.UserNotFound);
-                }
+            var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
-                return Result.Success(user);
-            }
-            catch (Exception)
+            if (user is null)
             {
-                return Result.Failure<Domain.Users.User>(Error.BuildInternalError("Query", "An error occurred while retrieving the user by ID."));
+                return Result.Failure<Domain.Users.User>(UserErrors.UserNotFound);
             }
+
+            return Result.Success(user);
+
         }
     }
 }

@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VaultHistory.User.Application.Options;
@@ -18,6 +19,14 @@ namespace VaultHistory.User.Application
             // Providers
             services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddScoped<IPasswordHasherProvider, PasswordHasherProvider>();
+
+            // MediatR
+            services.AddMediatR(cfg => {
+                cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+            });
+
+            // Validation
+            services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
             return services;
         }
