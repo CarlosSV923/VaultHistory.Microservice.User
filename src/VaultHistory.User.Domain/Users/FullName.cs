@@ -4,7 +4,7 @@ namespace VaultHistory.User.Domain.Users
 {
     public sealed record FullName
     {
-        private const int MaxLength = 100;
+        private const int MaxLength = 50;
 
         private FullName(string firstName, string lastName)
         {
@@ -15,7 +15,7 @@ namespace VaultHistory.User.Domain.Users
         public string FirstName { get; }
         public string LastName { get; }
 
-        public static Result<FullName> Create(string firstName, string lastName)
+        public static Result<FullName> Create(string? firstName, string? lastName)
         {
             if (string.IsNullOrWhiteSpace(firstName))
             {
@@ -44,5 +44,6 @@ namespace VaultHistory.User.Domain.Users
         }
 
         public string GetFullName() => $"{FirstName} {LastName}";
+        public override string ToString() => GetFullName();
     }
 }

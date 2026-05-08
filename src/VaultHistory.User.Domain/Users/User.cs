@@ -24,7 +24,7 @@ namespace VaultHistory.User.Domain.Users
 
         public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
-        public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; private set; }
 
         public bool IsActive { get; private set; } = true;
 
@@ -73,24 +73,6 @@ namespace VaultHistory.User.Domain.Users
                 if (nameResult.IsFailure)
                 {
                     return nameResult;
-                }
-            }
-
-            if (data.Email is not null)
-            {
-                var emailResult = ChangeEmail(data.Email);
-                if (emailResult.IsFailure)
-                {
-                    return emailResult;
-                }
-            }
-
-            if (data.Password is not null)
-            {
-                var passwordResult = ChangePassword(data.Password);
-                if (passwordResult.IsFailure)
-                {
-                    return passwordResult;
                 }
             }
 

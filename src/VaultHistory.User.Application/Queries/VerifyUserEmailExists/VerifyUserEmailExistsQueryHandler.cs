@@ -1,24 +1,22 @@
 using VaultHistory.User.Application.Abstractions;
 using VaultHistory.User.Domain.Abstractions;
+using VaultHistory.User.Domain.Users;
 using VaultHistory.User.Domain.Users.Interfaces;
 
 namespace VaultHistory.User.Application.Queries.VerifyUserEmailExists
 {
-    internal sealed class VerifyUserEmailExistsQueryHandler(IUserRepository userRepository) : IQueryHandler<VerifyUserEmailExistsQuery, bool>
+    internal sealed class VerifyUserEmailExistsQueryHandler(IUserRepository userRepository) : IQueryHandler<VerifyUserEmailExistsQuery>
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task<Result<bool>> Handle(VerifyUserEmailExistsQuery request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(VerifyUserEmailExistsQuery request, CancellationToken cancellationToken)
         {
-            try
+            var user = await _userRepository.VerifyEmailExistsAsync(request.Email, cancellationToken);
+            if (!user)
             {
-                var user = await _userRepository.VerifyEmailExistsAsync(request.Email, cancellationToken);
-                return Result.Success(user);
+                return Result.Failure(UserErrors.UserNotFound);
             }
-            catch (Exception)
-            {
-                return Result.Failure<bool>(Error.BuildInternalError("Query", "An error occurred while verifying if the user email exists."));
-            }
+            return Result.Success();
         }
     }
 }

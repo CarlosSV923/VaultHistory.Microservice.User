@@ -13,7 +13,7 @@ namespace VaultHistory.User.Domain.Users
         public string Hash { get; }
         public string Salt { get; }
 
-        public static Result<Password> Create(string hash, string salt)
+        public static Result<Password> Create(string? hash, string? salt)
         {
             if (string.IsNullOrWhiteSpace(hash))
             {

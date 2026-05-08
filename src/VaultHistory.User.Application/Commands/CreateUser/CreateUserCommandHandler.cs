@@ -14,17 +14,12 @@ namespace VaultHistory.User.Application.Commands.CreateUser
 
         public async Task<Result> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                _userRepository.Add(request.User);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Result.Success();
-            }
-            catch (Exception)
-            {
-                return Result.Failure(Error.BuildInternalError("Command", "An error occurred while creating the user."));
-            }
+            _userRepository.Add(request.User);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
+
         }
     }
 }

@@ -6,9 +6,10 @@
     <Project Path="src/VaultHistory.User.Infrastructure/VaultHistory.User.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/VaultHistory.User.Application/VaultHistory.User.Application.csproj" />
-    <Project Path="tests/VaultHistory.User.Domain/VaultHistory.User.Domain.csproj" />
-    <Project Path="tests/VaultHistory.User.Infrastructure/VaultHistory.User.Infrastructure.csproj" />
+    <Project Path="tests/VaultHistory.User.Api.UnitTests/VaultHistory.User.Api.UnitTests.csproj" />
+    <Project Path="tests/VaultHistory.User.Application.UnitTests/VaultHistory.User.Application.UnitTests.csproj" />
+    <Project Path="tests/VaultHistory.User.Domain.UnitTests/VaultHistory.User.Domain.UnitTests.csproj" />
+    <Project Path="tests/VaultHistory.User.Infrastructure.UnitTests/VaultHistory.User.Infrastructure.UnitTests.csproj" />
     <Project Path="tests/VaultHistory.User.IntegrationTests/VaultHistory.User.IntegrationTests.csproj" />
   </Folder>
 </Solution>

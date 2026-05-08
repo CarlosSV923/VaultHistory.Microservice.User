@@ -5,6 +5,6 @@ namespace VaultHistory.User.Application.Providers.Jwt
 {
     public interface IJwtProvider
     {
-        Result<JwtGenerateTokenResult> GenerateToken(Domain.Users.User user);
+        JwtGenerateTokenResult GenerateToken(Domain.Users.User user);
     }
 }

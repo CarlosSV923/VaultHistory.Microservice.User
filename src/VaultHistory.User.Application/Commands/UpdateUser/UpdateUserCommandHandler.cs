@@ -13,17 +13,12 @@ namespace VaultHistory.User.Application.Commands.UpdateUser
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         public async Task<Result> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                _userRepository.Update(request.User);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Result.Success();
-            }
-            catch (Exception)
-            {
-                return Result.Failure(Error.BuildInternalError("Command", "An error occurred while updating the user."));
-            }
+            _userRepository.Update(request.User);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
+
         }
     }
 }

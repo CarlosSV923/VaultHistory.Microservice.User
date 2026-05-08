@@ -14,22 +14,15 @@ namespace VaultHistory.User.Application.Queries.GetUserByEmail
 
         public async Task<Result<Domain.Users.User>> Handle(GetUserByEmailQuery request, CancellationToken cancellationToken)
         {
-            try
+
+            var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
+
+            if (user is null)
             {
-
-                var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
-
-                if (user is null)
-                {
-                    return Result.Failure<Domain.Users.User>(UserErrors.UserNotFound);
-                }
-
-                return Result.Success(user);
+                return Result.Failure<Domain.Users.User>(UserErrors.UserNotFound);
             }
-            catch (Exception)
-            {
-                return Result.Failure<Domain.Users.User>(Error.BuildInternalError("Query", "An error occurred while retrieving the user by email."));
-            }
+
+            return Result.Success(user);
 
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace VaultHistory.User.Infrastructure;
+﻿namespace VaultHistory.User.Api.UnitTests;
 
 public class UnitTest1
 {
