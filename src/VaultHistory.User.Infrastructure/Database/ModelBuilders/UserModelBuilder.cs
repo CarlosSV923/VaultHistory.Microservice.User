@@ -34,9 +34,10 @@ namespace VaultHistory.User.Infrastructure.Database.ModelBuilders
                 e.Property(p => p.Value)
                     .HasColumnName("Email")
                     .IsRequired();
-            })
-            .HasIndex(e => e.Email.Value)
-            .IsUnique();
+
+                e.HasIndex(p => p.Value)
+                    .IsUnique();
+            });
             
             builder.OwnsOne(u => u.FullName, fn =>
             {

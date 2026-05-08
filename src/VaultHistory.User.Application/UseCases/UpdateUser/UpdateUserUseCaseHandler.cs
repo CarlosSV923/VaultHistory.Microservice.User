@@ -10,22 +10,22 @@ namespace VaultHistory.User.Application.UseCases.UpdateUser
 {
     internal sealed class UpdateUserUseCaseHandler(
         IMediator mediator
-    ) : IUseCaseHandler<UpdateUserUseCase, UpdateUserResponseDTO>
+    ) : IUseCaseHandler<UpdateUserRequestDto, UpdateUserResponseDto>
     {
-        public async Task<Result<UpdateUserResponseDTO>> Handle(UpdateUserUseCase request, CancellationToken cancellationToken)
+        public async Task<Result<UpdateUserResponseDto>> Handle(UpdateUserRequestDto request, CancellationToken cancellationToken)
         {
-            var body = request.Request;
+            var body = request;
 
             var userIdResult = UserId.FromString(body.UserId);
             if (userIdResult.IsFailure)
             {
-                return Result.Failure<UpdateUserResponseDTO>(userIdResult.Error);
+                return Result.Failure<UpdateUserResponseDto>(userIdResult.Error);
             }
 
             var userResult = await mediator.Send(new GetUserByIdQuery(userIdResult.Value), cancellationToken);
             if (userResult.IsFailure)
             {
-                return Result.Failure<UpdateUserResponseDTO>(userResult.Error);
+                return Result.Failure<UpdateUserResponseDto>(userResult.Error);
             }
 
             var user = userResult.Value;
@@ -33,7 +33,7 @@ namespace VaultHistory.User.Application.UseCases.UpdateUser
             var newFullNameResult = FullName.Create(body.FirstName, body.LastName);
             if (newFullNameResult.IsFailure)
             {
-                return Result.Failure<UpdateUserResponseDTO>(newFullNameResult.Error);
+                return Result.Failure<UpdateUserResponseDto>(newFullNameResult.Error);
             }
 
             var dataUpdate = new UpdateUserData(
@@ -45,16 +45,16 @@ namespace VaultHistory.User.Application.UseCases.UpdateUser
             var updateResult = user.Update(dataUpdate);
             if (updateResult.IsFailure)
             {
-                return Result.Failure<UpdateUserResponseDTO>(updateResult.Error);
+                return Result.Failure<UpdateUserResponseDto>(updateResult.Error);
             }
 
             var saveResult = await mediator.Send(new UpdateUserCommand(user), cancellationToken);
             if (saveResult.IsFailure)
             {
-                return Result.Failure<UpdateUserResponseDTO>(saveResult.Error);
+                return Result.Failure<UpdateUserResponseDto>(saveResult.Error);
             }
 
-            return Result.Success(new UpdateUserResponseDTO(user.Id.ToString()));
+            return Result.Success(new UpdateUserResponseDto(user.Id.ToString()));
         }
     }
 }

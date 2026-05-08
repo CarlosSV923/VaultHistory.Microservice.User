@@ -4,7 +4,7 @@ namespace VaultHistory.User.Domain.Users
 {
     public sealed record FullName
     {
-        private const int MaxLength = 100;
+        private const int MaxLength = 50;
 
         private FullName(string firstName, string lastName)
         {

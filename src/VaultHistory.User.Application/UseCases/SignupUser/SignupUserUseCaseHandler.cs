@@ -6,7 +6,6 @@ using VaultHistory.User.Application.Providers.PasswordHasher;
 using VaultHistory.User.Application.Queries.VerifyUserEmailExists;
 using VaultHistory.User.Domain.Abstractions;
 using VaultHistory.User.Domain.Users;
-using VaultHistory.User.Domain.Users.Interfaces;
 using VaultHistory.User.Domain.Users.ValueObjects;
 
 namespace VaultHistory.User.Application.UseCases.SignupUser
@@ -15,33 +14,33 @@ namespace VaultHistory.User.Application.UseCases.SignupUser
         IMediator mediator,
         IPasswordHasherProvider passwordHasherProvider,
         IJwtProvider jwtProvider
-    ) : IUseCaseHandler<SignupUserUseCase, SignupUserResponseDTO>
+    ) : IUseCaseHandler<SignupUserRequestDto, SignupUserResponseDto>
     {
 
 
-        public async Task<Result<SignupUserResponseDTO>> Handle(SignupUserUseCase request, CancellationToken cancellationToken)
+        public async Task<Result<SignupUserResponseDto>> Handle(SignupUserRequestDto request, CancellationToken cancellationToken)
         {
-            var body = request.Request;
+            var body = request;
 
             var emailResult = Email.Create(body.Email);
 
             if (emailResult.IsFailure)
             {
-                return Result.Failure<SignupUserResponseDTO>(emailResult.Error);
+                return Result.Failure<SignupUserResponseDto>(emailResult.Error);
             }
 
             // Check if user with the same email already exists
             var existingUserResult = await mediator.Send(new VerifyUserEmailExistsQuery(emailResult.Value), cancellationToken);
             if (existingUserResult.IsFailure)
             {
-                return Result.Failure<SignupUserResponseDTO>(existingUserResult.Error);
+                return Result.Failure<SignupUserResponseDto>(existingUserResult.Error);
             }
 
             // validate password
             var validatePasswordResult = passwordHasherProvider.ValidatePassword(body.Password);
             if (validatePasswordResult.IsFailure)
             {
-                return Result.Failure<SignupUserResponseDTO>(validatePasswordResult.Error);
+                return Result.Failure<SignupUserResponseDto>(validatePasswordResult.Error);
             }
 
             // Hash the password
@@ -49,14 +48,14 @@ namespace VaultHistory.User.Application.UseCases.SignupUser
             var passwordCreate = Password.Create(passwordHashResult.Hash, passwordHashResult.Salt);
             if (passwordCreate.IsFailure)
             {
-                return Result.Failure<SignupUserResponseDTO>(UserErrors.PasswordHashingFailed);
+                return Result.Failure<SignupUserResponseDto>(UserErrors.PasswordHashingFailed);
             }
 
             var fullNameCreateResult = FullName.Create(body.FirstName, body.LastName);
 
             if (fullNameCreateResult.IsFailure)
             {
-                return Result.Failure<SignupUserResponseDTO>(fullNameCreateResult.Error);
+                return Result.Failure<SignupUserResponseDto>(fullNameCreateResult.Error);
             }
 
 
@@ -72,7 +71,7 @@ namespace VaultHistory.User.Application.UseCases.SignupUser
 
             if (user.IsFailure)
             {
-                return Result.Failure<SignupUserResponseDTO>(user.Error);
+                return Result.Failure<SignupUserResponseDto>(user.Error);
             }            
 
             // Save user to repository
@@ -81,7 +80,7 @@ namespace VaultHistory.User.Application.UseCases.SignupUser
             // Generate JWT token
             var token = jwtProvider.GenerateToken(user.Value);
 
-            return Result.Success(new SignupUserResponseDTO(token.Token, token.Expiration));
+            return Result.Success(new SignupUserResponseDto(token.Token, token.Expiration));
         }
     }
 }

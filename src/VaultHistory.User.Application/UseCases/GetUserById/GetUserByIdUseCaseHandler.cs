@@ -9,26 +9,26 @@ namespace VaultHistory.User.Application.UseCases.GetUserById
 {
     internal class GetUserByIdUseCaseHandler (
         IMediator mediator
-    ) : IUseCaseHandler<GetUserByIdUseCase, GetUserByIdResponseDTO>
+    ) : IUseCaseHandler<GetUserByIdRequestDto, GetUserByIdResponseDto>
     {
 
-        public async Task<Result<GetUserByIdResponseDTO>> Handle(GetUserByIdUseCase request, CancellationToken cancellationToken)
+        public async Task<Result<GetUserByIdResponseDto>> Handle(GetUserByIdRequestDto request, CancellationToken cancellationToken)
         {
-            var body = request.Request;
+            var body = request;
             var userIdResult = UserId.FromString(body.UserId);
             if (userIdResult.IsFailure)
             {
-                return Result.Failure<GetUserByIdResponseDTO>(userIdResult.Error);
+                return Result.Failure<GetUserByIdResponseDto>(userIdResult.Error);
             }
 
             var userResult = await mediator.Send(new GetUserByIdQuery(userIdResult.Value), cancellationToken);
             if (userResult.IsFailure)
             {
-                return Result.Failure<GetUserByIdResponseDTO>(userResult.Error);
+                return Result.Failure<GetUserByIdResponseDto>(userResult.Error);
             }
 
             var user = userResult.Value;
-            var response = new GetUserByIdResponseDTO(
+            var response = new GetUserByIdResponseDto(
                 user.Id.ToString(),
                 user.FullName.FirstName,
                 user.FullName.LastName,

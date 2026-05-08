@@ -9,23 +9,23 @@ namespace VaultHistory.User.Application.UseCases.DeactivateUser
 {
     internal sealed class DeactivateUserUseCaseHandler(
         IMediator mediator
-    ) : IUseCaseHandler<DeactivateUserUseCase, DeactivateUserResponseDTO>
+    ) : IUseCaseHandler<DeactivateUserRequestDto, DeactivateUserResponseDto>
     {
 
 
-        public async Task<Result<DeactivateUserResponseDTO>> Handle(DeactivateUserUseCase request, CancellationToken cancellationToken)
+        public async Task<Result<DeactivateUserResponseDto>> Handle(DeactivateUserRequestDto request, CancellationToken cancellationToken)
         {
-            var body = request.Request;
+            var body = request;
             var userIdResult = UserId.FromString(body.UserId);
             if (userIdResult.IsFailure)
             {
-                return Result.Failure<DeactivateUserResponseDTO>(userIdResult.Error);
+                return Result.Failure<DeactivateUserResponseDto>(userIdResult.Error);
             }
 
             var getUserResult = await mediator.Send(new GetUserByIdQuery(userIdResult.Value), cancellationToken);
             if (getUserResult.IsFailure)
             {
-                return Result.Failure<DeactivateUserResponseDTO>(getUserResult.Error);
+                return Result.Failure<DeactivateUserResponseDto>(getUserResult.Error);
             }
 
             var user = getUserResult.Value;
@@ -34,10 +34,10 @@ namespace VaultHistory.User.Application.UseCases.DeactivateUser
             var updateResult = await mediator.Send(new UpdateUserCommand(user), cancellationToken);
             if (updateResult.IsFailure)
             {
-                return Result.Failure<DeactivateUserResponseDTO>(updateResult.Error);
+                return Result.Failure<DeactivateUserResponseDto>(updateResult.Error);
             }
 
-            return Result.Success(new DeactivateUserResponseDTO(user.Id.ToString()));
+            return Result.Success(new DeactivateUserResponseDto(user.Id.ToString()));
         }
     }
 }

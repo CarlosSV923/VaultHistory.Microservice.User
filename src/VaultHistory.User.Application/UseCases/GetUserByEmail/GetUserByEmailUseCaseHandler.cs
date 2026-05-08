@@ -8,28 +8,28 @@ namespace VaultHistory.User.Application.UseCases.GetUserByEmail
 {
     internal sealed class GetUserByEmailUseCaseHandler(
         IMediator mediator
-    ) : IUseCaseHandler<GetUserByEmailUseCase, GetUserByEmailResponseDTO>
+    ) : IUseCaseHandler<GetUserByEmailRequestDto, GetUserByEmailResponseDto>
     {
-        public async Task<Result<GetUserByEmailResponseDTO>> Handle(GetUserByEmailUseCase request, CancellationToken cancellationToken)
+        public async Task<Result<GetUserByEmailResponseDto>> Handle(GetUserByEmailRequestDto request, CancellationToken cancellationToken)
         {
-            var body = request.Request;
+            var body = request;
 
             var emaulResult = Email.Create(body.Email);
 
             if (emaulResult.IsFailure)
             {
-                return Result.Failure<GetUserByEmailResponseDTO>(emaulResult.Error);
+                return Result.Failure<GetUserByEmailResponseDto>(emaulResult.Error);
             }
 
             var userResult = await mediator.Send(new GetUserByEmailQuery(emaulResult.Value), cancellationToken);
             if (userResult.IsFailure)
             {
-                return Result.Failure<GetUserByEmailResponseDTO>(userResult.Error);
+                return Result.Failure<GetUserByEmailResponseDto>(userResult.Error);
             }
 
             var user = userResult.Value;
 
-            var response = new GetUserByEmailResponseDTO(
+            var response = new GetUserByEmailResponseDto(
                 user.Id.ToString(),
                 user.FullName.FirstName,
                 user.FullName.LastName,

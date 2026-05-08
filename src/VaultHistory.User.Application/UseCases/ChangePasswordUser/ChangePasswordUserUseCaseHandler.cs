@@ -10,36 +10,36 @@ namespace VaultHistory.User.Application.UseCases.ChangePasswordUser
     internal sealed class ChangePasswordUserUseCaseHandler(
         IMediator mediator,
         IPasswordHasherProvider passwordHasherProvider
-    ) : IUseCaseHandler<ChangePasswordUserUseCase, ChangePasswordUserResponseDTO>
+    ) : IUseCaseHandler<ChangePasswordUserRequestDto, ChangePasswordUserResponseDto>
     {
         private readonly IPasswordHasherProvider _passwordHasherProvider = passwordHasherProvider;
-        public async Task<Result<ChangePasswordUserResponseDTO>> Handle(ChangePasswordUserUseCase request, CancellationToken cancellationToken)
+        public async Task<Result<ChangePasswordUserResponseDto>> Handle(ChangePasswordUserRequestDto request, CancellationToken cancellationToken)
         {
-            var body = request.Request;
+            var body = request;
 
             var userIdResult = UserId.FromString(body.UserId);
             if (userIdResult.IsFailure)
             {
-                return Result.Failure<ChangePasswordUserResponseDTO>(userIdResult.Error);
+                return Result.Failure<ChangePasswordUserResponseDto>(userIdResult.Error);
             }
 
             var userResult = await mediator.Send(new GetUserByIdQuery(userIdResult.Value), cancellationToken);
             if (userResult.IsFailure)
             {
-                return Result.Failure<ChangePasswordUserResponseDTO>(userResult.Error);
+                return Result.Failure<ChangePasswordUserResponseDto>(userResult.Error);
             }
             var user = userResult.Value;
 
             var verifyPasswordResult = _passwordHasherProvider.VerifyPassword(body.CurrentPassword, user.Password.Hash, user.Password.Salt);
             if (verifyPasswordResult.IsFailure)
             {
-                return Result.Failure<ChangePasswordUserResponseDTO>(verifyPasswordResult.Error);
+                return Result.Failure<ChangePasswordUserResponseDto>(verifyPasswordResult.Error);
             }
 
             var validatePasswordResult = _passwordHasherProvider.ValidatePassword(body.NewPassword);
             if (validatePasswordResult.IsFailure)
             {
-                return Result.Failure<ChangePasswordUserResponseDTO>(validatePasswordResult.Error);
+                return Result.Failure<ChangePasswordUserResponseDto>(validatePasswordResult.Error);
             }
 
             var hashData = _passwordHasherProvider.HashPassword(body.NewPassword);
@@ -47,7 +47,7 @@ namespace VaultHistory.User.Application.UseCases.ChangePasswordUser
             var passwordReult = Password.Create(hashData.Hash, hashData.Salt);
             if (passwordReult.IsFailure)
             {
-                return Result.Failure<ChangePasswordUserResponseDTO>(passwordReult.Error);
+                return Result.Failure<ChangePasswordUserResponseDto>(passwordReult.Error);
             }
 
             user.ChangePassword(passwordReult.Value);
@@ -55,10 +55,10 @@ namespace VaultHistory.User.Application.UseCases.ChangePasswordUser
             var updateResult = await mediator.Send(new Commands.UpdateUser.UpdateUserCommand(user), cancellationToken);
             if (updateResult.IsFailure)
             {
-                return Result.Failure<ChangePasswordUserResponseDTO>(updateResult.Error);
+                return Result.Failure<ChangePasswordUserResponseDto>(updateResult.Error);
             }
 
-            return Result.Success(new ChangePasswordUserResponseDTO(user.Id.ToString()));
+            return Result.Success(new ChangePasswordUserResponseDto(user.Id.ToString()));
         }
     }
 }

@@ -23,9 +23,8 @@ namespace VaultHistory.User.Application.Providers.Jwt
                 new(JwtRegisteredClaimNames.Name, $"{user.FullName.GetFullName()}"),
             };
 
-            using var rsa = RSA.Create();
-            rsa.ImportFromPem(_options.PrivateKey.ToCharArray());
-            var key = new RsaSecurityKey(rsa);
+            var key = new RsaSecurityKey(RSA.Create());
+            key.Rsa.ImportFromPem(_options.PrivateKey.ToCharArray());
             var creds = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
 
             var expiration = DateTime.UtcNow.AddMinutes(_options.ExpirationMinutes);

@@ -1,10 +1,12 @@
+using VaultHistory.User.Application.Abstractions;
+
 namespace VaultHistory.User.Application.UseCases.GetUserById
 {
-    public record GetUserByIdRequestDTO(
+    public record GetUserByIdRequestDto(
         string UserId
-    );
+    ) : IUseCase<GetUserByIdResponseDto>;
 
-    public record GetUserByIdResponseDTO(
+    public record GetUserByIdResponseDto(
         string UserId,
         string FirstName,
         string LastName,
