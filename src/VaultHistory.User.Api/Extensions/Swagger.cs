@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -28,6 +28,24 @@ namespace VaultHistory.User.Api.Extensions
                 }
                 options.SwaggerDoc(description.GroupName, info);
             }
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description =
+                    "Ingrese el token JWT.\n\n" +
+                    "Ejemplo:\n\n" +
+                    "Bearer eyJhbGciOi..."
+            });
+
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+            });
         }
 
         public void Configure(string? name, SwaggerGenOptions options)
@@ -41,6 +59,17 @@ namespace VaultHistory.User.Api.Extensions
     {
         public static IServiceCollection AddSwaggerDOC(this IServiceCollection services)
         {
+            services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = new UrlSegmentApiVersionReader();
+            }).AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
             services.AddEndpointsApiExplorer();
             services.ConfigureOptions<SwaggerOptionsSetup>();
             services.AddSwaggerGen();
