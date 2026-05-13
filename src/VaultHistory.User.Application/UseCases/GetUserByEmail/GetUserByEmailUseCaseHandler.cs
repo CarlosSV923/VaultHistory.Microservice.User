@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using VaultHistory.User.Application.Abstractions;
 using VaultHistory.User.Application.Queries.GetUserByEmail;
 using VaultHistory.User.Domain.Abstractions;
@@ -7,23 +8,28 @@ using VaultHistory.User.Domain.Users;
 namespace VaultHistory.User.Application.UseCases.GetUserByEmail
 {
     internal sealed class GetUserByEmailUseCaseHandler(
-        IMediator mediator
+        IMediator mediator,
+        ILogger<GetUserByEmailUseCaseHandler> logger
     ) : IUseCaseHandler<GetUserByEmailRequestDto, GetUserByEmailResponseDto>
     {
         public async Task<Result<GetUserByEmailResponseDto>> Handle(GetUserByEmailRequestDto request, CancellationToken cancellationToken)
         {
             var body = request;
 
-            var emaulResult = Email.Create(body.Email);
+            logger.LogInformation("Handling GetUserByEmailUseCase for Email: {Email}", body.Email);
 
-            if (emaulResult.IsFailure)
+            var emailResult = Email.Create(body.Email);
+
+            if (emailResult.IsFailure)
             {
-                return Result.Failure<GetUserByEmailResponseDto>(emaulResult.Error);
+                logger.LogWarning("Failed to parse Email '{Email}': {ErrorMessage}", body.Email, emailResult.Error.Message);
+                return Result.Failure<GetUserByEmailResponseDto>(emailResult.Error);
             }
 
-            var userResult = await mediator.Send(new GetUserByEmailQuery(emaulResult.Value), cancellationToken);
+            var userResult = await mediator.Send(new GetUserByEmailQuery(emailResult.Value), cancellationToken);
             if (userResult.IsFailure)
             {
+                logger.LogWarning("Failed to retrieve user with Email '{Email}': {ErrorMessage}", body.Email, userResult.Error.Message);
                 return Result.Failure<GetUserByEmailResponseDto>(userResult.Error);
             }
 
@@ -37,7 +43,7 @@ namespace VaultHistory.User.Application.UseCases.GetUserByEmail
                 user.BirthDate,
                 user.IsActive
             );
-
+            logger.LogInformation("Returning user information for Email '{Email}': {UserId}", body.Email, user.Id);
             return Result.Success(response);
         }
     }

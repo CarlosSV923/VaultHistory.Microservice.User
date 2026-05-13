@@ -4,7 +4,9 @@ using VaultHistory.User.Application.Exceptions;
 
 namespace VaultHistory.User.Api.Middlewares
 {
-    public class ExceptionHandler(RequestDelegate next)
+    public class ExceptionHandler(
+        ILogger<ExceptionHandler> logger,
+        RequestDelegate next)
     {
 
         public async Task InvokeAsync(HttpContext context)
@@ -15,6 +17,8 @@ namespace VaultHistory.User.Api.Middlewares
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "An error occurred while processing the request => {Message}", ex.Message);
+
                 var exceptionDetails = GetExceptionDetails(ex);
 
                 var problemDetails = new ProblemDetails
@@ -53,7 +57,7 @@ namespace VaultHistory.User.Api.Middlewares
                     (int)HttpStatusCode.InternalServerError,
                     "ServerError",
                     "An error occurred while processing your request.",
-                    ex.Message,
+                    "An unexpected error occurred. Please try again later.",
                     null
                 )
             };

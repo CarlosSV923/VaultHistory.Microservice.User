@@ -6,5 +6,6 @@ namespace VaultHistory.User.Application.Providers.Jwt
     public interface IJwtProvider
     {
         JwtGenerateTokenResult GenerateToken(Domain.Users.User user);
+        Result ValidateToken(string token);
     }
 }

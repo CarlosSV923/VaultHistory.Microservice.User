@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VaultHistory.User.Api.Utils;
 using VaultHistory.User.Domain.Abstractions;
 using Microsoft.AspNetCore.Authorization;
+using VaultHistory.User.Api.Security;
 
 
 namespace VaultHistory.User.Api.Controllers.V1.User
@@ -17,7 +18,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
     ) : ControllerBase
     {
         [HttpDelete("{id}")]
-        [Authorize]
+        [JwtAuthorize]
         [ProducesResponseType(typeof(DeactivateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -36,7 +37,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         }
 
         [HttpPost("{id}/change-password")]
-        [Authorize]
+        [JwtAuthorize]
         [ProducesResponseType(typeof(ChangePasswordResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -54,7 +55,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         }
 
         [HttpGet("{id}")]
-        [Authorize]
+        [JwtAuthorize]
         [ProducesResponseType(typeof(GetByIdResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -73,7 +74,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         }
 
         [HttpGet("by-email")]
-        [Authorize]
+        [JwtAuthorize]
         [ProducesResponseType(typeof(GetByEmailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -129,7 +130,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [JwtAuthorize]
         [ProducesResponseType(typeof(UpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]

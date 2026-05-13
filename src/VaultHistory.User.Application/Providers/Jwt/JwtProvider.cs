@@ -23,17 +23,14 @@ namespace VaultHistory.User.Application.Providers.Jwt
                 new(JwtRegisteredClaimNames.Name, $"{user.FullName.GetFullName()}"),
             };
 
-            var key = new RsaSecurityKey(RSA.Create());
-            key.Rsa.ImportFromPem(_options.PrivateKey.ToCharArray());
-            var creds = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
-
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_options.PrivateKey));
             var expiration = DateTime.UtcNow.AddMinutes(_options.ExpirationMinutes);
             var token = new JwtSecurityToken(
                 issuer: _options.Issuer,
                 audience: _options.Audience,
                 claims: claims,
                 expires: expiration,
-                signingCredentials: creds
+                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
             );
 
             return new JwtGenerateTokenResult(
@@ -41,6 +38,53 @@ namespace VaultHistory.User.Application.Providers.Jwt
                 expiration
             );
 
+        }
+
+        public Result ValidateToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_options.PrivateKey));
+
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = _options.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _options.Audience,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = key,
+                    ValidateIssuerSigningKey = true
+                }, out _);
+
+
+                return Result.Success();
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return Result.Failure(JwtErrors.TokenExpired);
+            }
+            catch (SecurityTokenInvalidSignatureException)
+            {
+                return Result.Failure(JwtErrors.InvalidSignature);
+            }
+            catch (SecurityTokenInvalidIssuerException)
+            {
+                return Result.Failure(JwtErrors.InvalidIssuer);
+            }
+            catch (SecurityTokenInvalidAudienceException)
+            {
+                return Result.Failure(JwtErrors.InvalidAudience);
+            }
+            catch (SecurityTokenMalformedException)
+            {
+                return Result.Failure(JwtErrors.MalformedToken);
+            }
+            catch (Exception)
+            {
+                return Result.Failure(JwtErrors.InvalidToken);
+            }
         }
     }
 }
