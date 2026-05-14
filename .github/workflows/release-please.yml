@@ -17,7 +17,7 @@ jobs:
         uses: google-github-actions/release-please-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: dotnet
+          release-type: simple
           release-please-config: .release-please-config.json
           package-name: "."
           changelog-path: CHANGELOG.md
