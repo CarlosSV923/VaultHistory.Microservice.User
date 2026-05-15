@@ -24,7 +24,7 @@ var app = builder.Build();
 
 app.UseMiddlewares();
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSwaggerDoc(app.DescribeApiVersions());
 }
