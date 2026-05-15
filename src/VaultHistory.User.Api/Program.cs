@@ -18,6 +18,7 @@ builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerDOC();
+builder.Services.AddHealthCheck();
 builder.AddAuth();
 
 var app = builder.Build();
@@ -30,6 +31,7 @@ if (!app.Environment.IsProduction())
 }
 
 app.UseAuth();
+app.UseHealthCheck();
 app.MapControllers();
 app.UseHttpsRedirection();
 
