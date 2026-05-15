@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/CarlosSV923/VaultHistory.Microservice.User/compare/v1.0.0...v1.1.0) (2026-05-15)
+
+
+### Features
+
+* **docker:** add local API and PostgreSQL setup ([c153b8f](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/c153b8fd0698b942e06414de82496e2e7968789f))
+* **HealthCheck:** Se agrega healthcheck personalizado ([4b180df](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/4b180dfc3a17fa51e3d5aae5f92156a3cc65b82f))
+* **Security:** Se mejora seguridad en servicios ([18ca23b](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/18ca23b4cb9ab610853f36651248d32358758624))
+
+
+### Bug Fixes
+
+* **.gitignore:** Se agregan archivos temporales innecesarios ([31732c9](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/31732c9047ec4f94525b7206431e2375e35b5742))
+* **user:** Se agrega validacion para operaciones cuando el usuarios esta inactivo ([487f163](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/487f1633b854eed042554c8d1d64dcb5084676e3))
+
 ## 1.0.0 (2026-05-14)
 
 
