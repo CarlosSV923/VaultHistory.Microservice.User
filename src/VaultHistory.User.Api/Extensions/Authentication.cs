@@ -12,6 +12,7 @@ namespace VaultHistory.User.Api.Extensions
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
             builder.Services.AddScoped<JwtAuthorizationFilter>();
+            builder.Services.AddHttpContextAccessor();
         }
 
         public static void UseAuth(this WebApplication app)

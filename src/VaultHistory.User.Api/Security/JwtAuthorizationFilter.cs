@@ -43,6 +43,8 @@ namespace VaultHistory.User.Api.Security
                 problemDetails.Detail = validationResult.Error.Message;
                 context.Result = objResult;
             }
+
+            context.HttpContext.User = validationResult.Value;
         }
     }
 }

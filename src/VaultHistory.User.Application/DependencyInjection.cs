@@ -5,6 +5,7 @@ using VaultHistory.User.Application.Behaviors;
 using VaultHistory.User.Application.Options;
 using VaultHistory.User.Application.Providers.Jwt;
 using VaultHistory.User.Application.Providers.PasswordHasher;
+using VaultHistory.User.Application.Providers.UserContext;
 
 namespace VaultHistory.User.Application
 {
@@ -19,6 +20,7 @@ namespace VaultHistory.User.Application
             // Providers
             services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddScoped<IPasswordHasherProvider, PasswordHasherProvider>();
+            services.AddScoped<IUserContextProvider, UserContextProvider>();
 
             // MediatR
             services.AddMediatR(cfg => {

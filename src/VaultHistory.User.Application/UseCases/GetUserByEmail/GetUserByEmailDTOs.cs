@@ -3,7 +3,8 @@ using VaultHistory.User.Application.Abstractions;
 namespace VaultHistory.User.Application.UseCases.GetUserByEmail
 {
     public record GetUserByEmailRequestDto(
-        string Email
+        string Email,
+        string RequestingUserId
     ) : IUseCase<GetUserByEmailResponseDto>;
 
     public record GetUserByEmailResponseDto(

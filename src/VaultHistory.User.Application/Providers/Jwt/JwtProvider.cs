@@ -2,9 +2,9 @@ using Microsoft.Extensions.Options;
 using VaultHistory.User.Application.Options;
 using VaultHistory.User.Domain.Abstractions;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace VaultHistory.User.Application.Providers.Jwt
 {
@@ -18,12 +18,12 @@ namespace VaultHistory.User.Application.Providers.Jwt
         {
             var claims = new List<Claim>
             {
-                new(JwtRegisteredClaimNames.Sub, user.Id.Value.ToString()),
+                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new(JwtRegisteredClaimNames.Email, user.Email.Value),
                 new(JwtRegisteredClaimNames.Name, $"{user.FullName.GetFullName()}"),
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_options.PrivateKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.PrivateKey));
             var expiration = DateTime.UtcNow.AddMinutes(_options.ExpirationMinutes);
             var token = new JwtSecurityToken(
                 issuer: _options.Issuer,
@@ -40,14 +40,14 @@ namespace VaultHistory.User.Application.Providers.Jwt
 
         }
 
-        public Result ValidateToken(string token)
+        public Result<ClaimsPrincipal> ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_options.PrivateKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.PrivateKey));
 
             try
             {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                var claimsPrincipals = tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidIssuer = _options.Issuer,
@@ -57,33 +57,31 @@ namespace VaultHistory.User.Application.Providers.Jwt
                     IssuerSigningKey = key,
                     ValidateIssuerSigningKey = true
                 }, out _);
-
-
-                return Result.Success();
+                return Result.Success(claimsPrincipals);
             }
             catch (SecurityTokenExpiredException)
             {
-                return Result.Failure(JwtErrors.TokenExpired);
+                return Result.Failure<ClaimsPrincipal>(JwtErrors.TokenExpired);
             }
             catch (SecurityTokenInvalidSignatureException)
             {
-                return Result.Failure(JwtErrors.InvalidSignature);
+                return Result.Failure<ClaimsPrincipal>(JwtErrors.InvalidSignature);
             }
             catch (SecurityTokenInvalidIssuerException)
             {
-                return Result.Failure(JwtErrors.InvalidIssuer);
+                return Result.Failure<ClaimsPrincipal>(JwtErrors.InvalidIssuer);
             }
             catch (SecurityTokenInvalidAudienceException)
             {
-                return Result.Failure(JwtErrors.InvalidAudience);
+                return Result.Failure<ClaimsPrincipal>(JwtErrors.InvalidAudience);
             }
             catch (SecurityTokenMalformedException)
             {
-                return Result.Failure(JwtErrors.MalformedToken);
+                return Result.Failure<ClaimsPrincipal>(JwtErrors.MalformedToken);
             }
             catch (Exception)
             {
-                return Result.Failure(JwtErrors.InvalidToken);
+                return Result.Failure<ClaimsPrincipal>(JwtErrors.InvalidToken);
             }
         }
     }
