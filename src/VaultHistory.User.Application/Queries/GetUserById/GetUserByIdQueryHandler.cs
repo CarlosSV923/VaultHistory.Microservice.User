@@ -19,6 +19,11 @@ namespace VaultHistory.User.Application.Queries.GetUserById
                 return Result.Failure<Domain.Users.User>(UserErrors.UserNotFound);
             }
 
+            if (!user.IsActive)
+            {
+                return Result.Failure<Domain.Users.User>(UserErrors.UserInactive);
+            }
+
             return Result.Success(user);
 
         }
