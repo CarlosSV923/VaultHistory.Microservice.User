@@ -5,6 +5,7 @@ using VaultHistory.User.Api.Utils;
 using VaultHistory.User.Domain.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using VaultHistory.User.Api.Security;
+using VaultHistory.User.Application.Providers.UserContext;
 
 
 namespace VaultHistory.User.Api.Controllers.V1.User
@@ -14,16 +15,18 @@ namespace VaultHistory.User.Api.Controllers.V1.User
     [ApiVersion(ApiVersions.V1)]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class UserController (
-        IMediator mediator
+        IMediator mediator,
+        IUserContextProvider userContextProvider
     ) : ControllerBase
     {
-        [HttpDelete("{id}")]
+        [HttpDelete]
         [JwtAuthorize]
         [ProducesResponseType(typeof(DeactivateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeactivateUser(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeactivateUser(CancellationToken cancellationToken)
         {
+            var id = userContextProvider.GetUserId();
             var request = new DeactivateRequest(id);
             var useCaseInput = UserMappers.Map(request);
             var response = await mediator.Send(useCaseInput, cancellationToken);
@@ -36,13 +39,14 @@ namespace VaultHistory.User.Api.Controllers.V1.User
             return Ok(UserMappers.Map(response.Value));
         }
 
-        [HttpPost("{id}/change-password")]
+        [HttpPost("change-password")]
         [JwtAuthorize]
         [ProducesResponseType(typeof(ChangePasswordResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ChangePassword(string id, [FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
+            var id = userContextProvider.GetUserId();
             var useCaseInput = UserMappers.Map(id, request);
             var response = await mediator.Send(useCaseInput, cancellationToken);
 
@@ -54,13 +58,15 @@ namespace VaultHistory.User.Api.Controllers.V1.User
             return Ok(UserMappers.Map(response.Value));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [JwtAuthorize]
         [ProducesResponseType(typeof(GetByIdResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetById(CancellationToken cancellationToken)
         {
+            var id = userContextProvider.GetUserId();
+            Console.WriteLine($"User ID from context: {id}");
             var request = new GetByIdRequest(id);
             var useCaseInput = UserMappers.Map(request);
             var response = await mediator.Send(useCaseInput, cancellationToken);
@@ -80,8 +86,9 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByEmail([FromQuery] string email, CancellationToken cancellationToken)
         {
+            var id = userContextProvider.GetUserId();
             var request = new GetByEmailRequest(email);
-            var useCaseInput = UserMappers.Map(request);
+            var useCaseInput = UserMappers.Map(id, request);
             var response = await mediator.Send(useCaseInput, cancellationToken);
 
             if (response.IsFailure)
@@ -129,14 +136,15 @@ namespace VaultHistory.User.Api.Controllers.V1.User
             return Ok(UserMappers.Map(response.Value));
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         [JwtAuthorize]
         [ProducesResponseType(typeof(UpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateRequest request,
+        public async Task<IActionResult> Update([FromBody] UpdateRequest request,
             CancellationToken cancellationToken)
         {
+            var id = userContextProvider.GetUserId();
             var useCaseInput = UserMappers.Map(id, request);
             var response = await mediator.Send(useCaseInput, cancellationToken);
 

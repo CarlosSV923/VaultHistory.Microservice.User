@@ -18,18 +18,20 @@ builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerDOC();
+builder.Services.AddHealthCheck();
 builder.AddAuth();
 
 var app = builder.Build();
 
 app.UseMiddlewares();
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSwaggerDoc(app.DescribeApiVersions());
 }
 
 app.UseAuth();
+app.UseHealthCheck();
 app.MapControllers();
 app.UseHttpsRedirection();
 

@@ -15,8 +15,8 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         public static GetUserByIdRequestDto Map(GetByIdRequest request) =>
             new(request.Id);
 
-        public static GetUserByEmailRequestDto Map(GetByEmailRequest request) =>
-            new(request.Email);
+        public static GetUserByEmailRequestDto Map(string requestingUserId, GetByEmailRequest request) =>
+            new(request.Email, requestingUserId);
 
         public static SigninUserRequestDto Map(SigninRequest request) =>
             new(request.Email, request.Password);

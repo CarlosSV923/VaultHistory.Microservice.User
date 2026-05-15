@@ -35,6 +35,12 @@ namespace VaultHistory.User.Application.UseCases.GetUserByEmail
 
             var user = userResult.Value;
 
+            if (user.Id.ToString() != body.RequestingUserId)
+            {
+                logger.LogWarning("User with id '{RequestingUserId}' attempted to access information for user with ID '{UserId}'", body.RequestingUserId, user.Id);
+                return Result.Failure<GetUserByEmailResponseDto>(UserErrors.InvalidUserId);
+            }
+
             var response = new GetUserByEmailResponseDto(
                 user.Id.ToString(),
                 user.FullName.FirstName,

@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using VaultHistory.User.Domain.Abstractions;
 
 namespace VaultHistory.User.Application.Providers.Jwt
@@ -6,6 +7,6 @@ namespace VaultHistory.User.Application.Providers.Jwt
     public interface IJwtProvider
     {
         JwtGenerateTokenResult GenerateToken(Domain.Users.User user);
-        Result ValidateToken(string token);
+        Result<ClaimsPrincipal> ValidateToken(string token);
     }
 }
