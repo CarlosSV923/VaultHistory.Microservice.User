@@ -7,13 +7,24 @@ namespace VaultHistory.User.Domain.Users
     public sealed class User : Entity<UserId>
     {
         private User() { }
-        private User(UserId id, FullName fullName, Email email, Password password, DateOnly? birthDate = null)
+        private User(
+            UserId id,
+            FullName fullName,
+            Email email,
+            Password password,
+            DateOnly? birthDate = null,
+            bool notification = false,
+            string? theme = null,
+            string? character = null)
          : base(id)
         {
             FullName = fullName;
             Email = email;
             Password = password;
             BirthDate = birthDate;
+            Notification = notification;
+            Theme = theme;
+            Character = character;
         }
 
         public FullName FullName { get; private set; } = null!;
@@ -27,6 +38,16 @@ namespace VaultHistory.User.Domain.Users
         public DateTime? UpdatedAt { get; private set; }
 
         public bool IsActive { get; private set; } = true;
+
+        public bool Notification { get; private set; }
+
+        public string? NotificationStatus { get; private set; }
+
+        public DateTime? NotificationDate { get; private set; }
+
+        public string? Theme { get; private set; }
+
+        public string? Character { get; private set; }
 
         public static Result<User> Create(CreateUserData data)
         {
@@ -55,7 +76,15 @@ namespace VaultHistory.User.Domain.Users
                 return Result.Failure<User>(UserErrors.BirthDateCannotBeInFuture);
             }
 
-            var user = new User(UserId.NewId(), data.FullName, data.Email, data.Password, data.BirthDate);
+            var user = new User(
+                UserId.NewId(),
+                data.FullName,
+                data.Email,
+                data.Password,
+                data.BirthDate,
+                data.Notification,
+                data.Theme,
+                data.Character);
             user.AddDomainEvent(new CreateUserEvent(user.Id));
             return Result.Success(user);
         }
@@ -83,6 +112,24 @@ namespace VaultHistory.User.Domain.Users
                 {
                     return birthDateResult;
                 }
+            }
+
+            if (data.Notification.HasValue && Notification != data.Notification.Value)
+            {
+                Notification = data.Notification.Value;
+                Touch();
+            }
+
+            if (data.Theme is not null && Theme != data.Theme)
+            {
+                Theme = data.Theme;
+                Touch();
+            }
+
+            if (data.Character is not null && Character != data.Character)
+            {
+                Character = data.Character;
+                Touch();
             }
 
             return Result.Success();

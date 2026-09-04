@@ -8,27 +8,37 @@ namespace VaultHistory.User.Infrastructure.Database.ModelBuilders
     {
         public void Configure(EntityTypeBuilder<OutboxMessage> builder)
         {
-            builder.ToTable("OutboxMessages");
+            builder.ToTable("outbox_messages");
 
             builder.HasKey(m => m.Id);
 
+            builder.Property(m => m.Id)
+                .HasColumnName("id")
+                .ValueGeneratedNever();
+
             builder.Property(m => m.Type)
-                .IsRequired()
-                .HasMaxLength(255);
+                .HasColumnName("type")
+                .IsRequired();
 
             builder.Property(m => m.Payload)
+                .HasColumnName("payload")
                 .IsRequired();
 
             builder.Property(m => m.OccurredOn)
+                .HasColumnName("occurredOn")
+                .HasPrecision(3)
                 .IsRequired();
 
-            builder.Property(m => m.Processed)
-                .IsRequired()
-                .HasDefaultValue(false);
+            builder.Property(m => m.Status)
+                .HasColumnName("status")
+                .HasDefaultValue("PENDING");
 
-            builder.Property(m => m.ProcessedOn);
+            builder.Property(m => m.UpdateAt)
+                .HasColumnName("updateAt")
+                .HasPrecision(3);
 
-            builder.Property(m => m.Error);
+            builder.Property(m => m.Error)
+                .HasColumnName("error");
         }
     }
 }

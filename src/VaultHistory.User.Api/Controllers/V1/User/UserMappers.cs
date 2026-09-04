@@ -22,10 +22,10 @@ namespace VaultHistory.User.Api.Controllers.V1.User
             new(request.Email, request.Password);
 
         public static SignupUserRequestDto Map(SignupRequest request) =>
-            new(request.Email, request.Password, request.FirstName, request.LastName, request.BirthDate);
+            new(request.Email, request.Password, request.FirstName, request.LastName, request.BirthDate, request.Notification, request.Theme, request.Character);
 
         public static UpdateUserRequestDto Map(string id, UpdateRequest request) =>
-            new(id, request.FirstName, request.LastName, request.BirthDate);
+            new(id, request.FirstName, request.LastName, request.BirthDate, request.Notification, request.Theme, request.Character);
 
         public static DeactivateUserRequestDto Map(DeactivateRequest request) =>
             new(request.Id);
