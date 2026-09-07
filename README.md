@@ -172,62 +172,13 @@ dotnet watch run --project src/VaultHistory.User.Api
 
 ## Ejecutar Con Docker
 
-La configuracion Docker esta ubicada dentro de la carpeta:
-
-```txt
-docker/
-```
-
-Estructura:
-
-```txt
-docker/
-  Dockerfile
-  docker-compose.yml
-  .dockerignore
-  database/
-    init/
-      001-initial-schema.sql
-```
-
-Para levantar la API junto con PostgreSQL:
+La construcción de esta API y el PostgreSQL compartido con Jobs se administran desde [Vault.History.System](https://github.com/CarlosSV923/Vault.History.System). Ese repositorio contiene el Dockerfile y el Compose únicos del sistema. Después de clonarlo con sus submódulos:
 
 ```bash
-docker compose -f docker/docker-compose.yml up --build
+docker compose up --build -d
 ```
 
-Tambien se puede ejecutar desde la carpeta `docker`:
-
-```bash
-cd docker
-docker compose up --build
-```
-
-La API queda disponible en:
-
-```txt
-http://localhost:5000
-```
-
-Swagger:
-
-```txt
-http://localhost:5000/swagger/index.html
-```
-
-Para detener los contenedores:
-
-```bash
-docker compose -f docker/docker-compose.yml down
-```
-
-Para detener los contenedores y eliminar el volumen de PostgreSQL:
-
-```bash
-docker compose -f docker/docker-compose.yml down -v
-```
-
-Los scripts ubicados en `docker/database/init` solo se ejecutan cuando PostgreSQL inicializa la base de datos por primera vez. Si el volumen ya existe, los scripts no se vuelven a ejecutar automaticamente.
+La API queda disponible en `http://localhost:5000` y su health check en `http://localhost:5000/health`.
 
 ## Entity Framework Core
 
@@ -269,20 +220,6 @@ dotnet ef database update \
   --startup-project src/VaultHistory.User.Api
 ```
 
-## Generar SQL Inicial Para Docker
-
-El archivo SQL usado por Docker debe generarse desde las migraciones de EF Core:
-
-```bash
-dotnet ef migrations script \
-  --project src/VaultHistory.User.Infrastructure \
-  --startup-project src/VaultHistory.User.Api \
-  --idempotent \
-  -o docker/database/init/001-initial-schema.sql
-```
-
-Este script permite que PostgreSQL cree el esquema inicial cuando el contenedor se levanta por primera vez.
-
 ## Flujo Recomendado Para Cambios De Base De Datos
 
 Cada vez que se modifique el modelo persistente:
@@ -291,8 +228,8 @@ Cada vez que se modifique el modelo persistente:
 1. Actualizar entidades o configuraciones de EF Core.
 2. Crear una nueva migracion.
 3. Aplicar la migracion a la base local.
-4. Regenerar el SQL inicial para Docker.
-5. Probar el proyecto localmente.
+4. Probar el proyecto localmente.
+5. Validar el arranque desde `Vault.History.System` si cambia el esquema compartido.
 ```
 
 Comandos:
@@ -306,19 +243,13 @@ dotnet ef migrations add NombreDeLaMigracion \
 dotnet ef database update \
   --project src/VaultHistory.User.Infrastructure \
   --startup-project src/VaultHistory.User.Api
-
-dotnet ef migrations script \
-  --project src/VaultHistory.User.Infrastructure \
-  --startup-project src/VaultHistory.User.Api \
-  --idempotent \
-  -o docker/database/init/001-initial-schema.sql
 ```
 
-Si se desea probar Docker desde cero despues de regenerar el SQL:
+Si se desea probar Docker desde cero después de cambiar las migraciones, desde `Vault.History.System`:
 
 ```bash
-docker compose -f docker/docker-compose.yml down -v
-docker compose -f docker/docker-compose.yml up --build
+docker compose down --volumes
+docker compose up --build -d
 ```
 
 ## Tests
