@@ -231,6 +231,16 @@ namespace VaultHistory.User.Domain.Users
             AddDomainEvent(new UserDeactivatedEvent(Id));
         }
 
+        public void RecordSignIn(DateTime occurredOn)
+        {
+            var utcOccurredOn = occurredOn.Kind == DateTimeKind.Utc
+                ? occurredOn
+                : occurredOn.ToUniversalTime();
+
+            Touch();
+            AddDomainEvent(new UserSignedInEvent(Id, utcOccurredOn));
+        }
+
         private void Touch() => UpdatedAt = DateTime.UtcNow;
 
     }

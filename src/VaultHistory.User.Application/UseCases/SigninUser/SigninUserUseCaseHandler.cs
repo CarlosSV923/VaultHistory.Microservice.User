@@ -13,6 +13,7 @@ namespace VaultHistory.User.Application.UseCases.SigninUser
         IMediator mediator,
         IPasswordHasherProvider passwordHasherProvider,
         IJwtProvider jwtProvider,
+        IUnitOfWork unitOfWork,
         ILogger<SigninUserUseCaseHandler> logger
     ) : IUseCaseHandler<SigninUserRequestDto, SigninUserResponseDto>
     {
@@ -51,7 +52,18 @@ namespace VaultHistory.User.Application.UseCases.SigninUser
                 return Result.Failure<SigninUserResponseDto>(UserErrors.InvalidPassword);
             }
 
-            // Generate JWT token
+            user.RecordSignIn(DateTime.UtcNow);
+
+            try
+            {
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+            {
+                logger.LogError(exception, "Failed to persist the sign-in event for user {UserId}.", user.Id);
+                return Result.Failure<SigninUserResponseDto>(UserErrors.SigninPersistenceFailed);
+            }
+
             var token = jwtProvider.GenerateToken(user);
 
             logger.LogInformation("User with Email '{Email}' signed in successfully", body.Email);

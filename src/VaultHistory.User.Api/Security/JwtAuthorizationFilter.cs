@@ -42,6 +42,7 @@ namespace VaultHistory.User.Api.Security
                 logger.LogWarning("Invalid JWT token: {Reason}", validationResult.Error.Message);
                 problemDetails.Detail = validationResult.Error.Message;
                 context.Result = objResult;
+                return;
             }
 
             context.HttpContext.User = validationResult.Value;

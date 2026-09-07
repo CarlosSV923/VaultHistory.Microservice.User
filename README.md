@@ -103,6 +103,18 @@ Conceptos utilizados:
 - **Unit of Work**: abstraccion para confirmar cambios de manera transaccional.
 - **Outbox Pattern**: persistencia de eventos de dominio como mensajes pendientes de procesamiento.
 
+### Notificacion de inicio de sesion
+
+Cada inicio de sesion exitoso registra `UserSignedInEvent` y lo persiste en la tabla de outbox con estado `PENDING` en la misma confirmacion de cambios. El mensaje usa el tipo `UserSignedInEvent` y un payload JSON compatible con Jobs:
+
+```json
+{
+  "userId": "<id-del-usuario>"
+}
+```
+
+Si no se puede persistir el evento, el inicio de sesion devuelve un error y no emite el JWT. El payload no contiene la contrasena ni el token.
+
 ## Configuracion Local
 
 La API carga configuracion desde la carpeta:
