@@ -148,6 +148,21 @@ public sealed class UserTests
         Assert.Empty(user.GetDomainEvents());
     }
 
+    [Fact]
+    public void RecordSignIn_ShouldRaiseEventWithTheUserAndUtcOccurrenceTime()
+    {
+        var user = CreateValidUser();
+        user.ClearDomainEvents();
+        var occurredOn = new DateTime(2026, 9, 7, 14, 30, 0, DateTimeKind.Utc);
+
+        user.RecordSignIn(occurredOn);
+
+        var signedInEvent = Assert.IsType<UserSignedInEvent>(Assert.Single(user.GetDomainEvents()));
+        Assert.Equal(user.Id, signedInEvent.UserId);
+        Assert.Equal(occurredOn, signedInEvent.OccurredOn);
+        Assert.NotNull(user.UpdatedAt);
+    }
+
     private static DomainUser CreateValidUser(DateOnly? birthDate = null)
     {
         return DomainUser.Create(CreateUserData(birthDate)).Value;

@@ -22,7 +22,7 @@ public sealed class UserControllerTests
             return Result.Success(new SigninUserResponseDto("jwt-token", expectedExpiration));
         });
 
-        var controller = new UserController(mediator);
+        var controller = new UserController(mediator, new FakeUserContextProvider());
 
         var result = await controller.Signin(new SigninRequest("user@test.com", "Passw0rd!"), CancellationToken.None);
 
@@ -41,7 +41,7 @@ public sealed class UserControllerTests
             return Result.Failure<SigninUserResponseDto>(new Error("Signin.InvalidCredentials", "Credenciales invalidas"));
         });
 
-        var controller = new UserController(mediator);
+        var controller = new UserController(mediator, new FakeUserContextProvider());
 
         var result = await controller.Signin(new SigninRequest("user@test.com", "wrong"), CancellationToken.None);
 
@@ -70,9 +70,9 @@ public sealed class UserControllerTests
             ));
         });
 
-        var controller = new UserController(mediator);
+        var controller = new UserController(mediator, new FakeUserContextProvider("u-123"));
 
-        var result = await controller.GetById("u-123", CancellationToken.None);
+        var result = await controller.GetById(CancellationToken.None);
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var payload = Assert.IsType<GetByIdResponse>(ok.Value);
@@ -93,9 +93,9 @@ public sealed class UserControllerTests
             return Result.Failure<GetUserByIdResponseDto>(new Error("User.NotFound", "User not found."));
         });
 
-        var controller = new UserController(mediator);
+        var controller = new UserController(mediator, new FakeUserContextProvider("missing"));
 
-        var result = await controller.GetById("missing", CancellationToken.None);
+        var result = await controller.GetById(CancellationToken.None);
 
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
         var payload = Assert.IsType<Error>(badRequest.Value);

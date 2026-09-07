@@ -1,9 +1,17 @@
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using VaultHistory.User.Application.Abstractions;
 using VaultHistory.User.Application.Commands.CreateUser;
 using VaultHistory.User.Application.Commands.UpdateUser;
+using VaultHistory.User.Application.Providers.Jwt;
+using VaultHistory.User.Application.Providers.PasswordHasher;
 using VaultHistory.User.Application.Queries.GetUserByEmail;
 using VaultHistory.User.Application.Queries.GetUserById;
 using VaultHistory.User.Application.Queries.VerifyUserEmailExists;
+using VaultHistory.User.Application.UseCases.SigninUser;
 using VaultHistory.User.Domain.Abstractions;
 using VaultHistory.User.Domain.Users;
 using VaultHistory.User.Domain.Users.Interfaces;
@@ -140,11 +148,75 @@ public sealed class ApplicationHandlersTests
         Assert.True(result.IsSucceeded);
     }
 
+    [Fact]
+    public async Task SigninUserUseCaseHandler_ShouldPersistSignInEventBeforeReturningToken()
+    {
+        var user = CreateUser("john.signin@example.com");
+        user.ClearDomainEvents();
+        var unitOfWork = new FakeUnitOfWork();
+        var jwtProvider = new FakeJwtProvider();
+        var handler = CreateSigninHandler(
+            new FakeMediator((request, _) =>
+            {
+                Assert.IsType<GetUserByEmailQuery>(request);
+                return Result.Success(user);
+            }),
+            new FakePasswordHasherProvider(Result.Success()),
+            jwtProvider,
+            unitOfWork);
+
+        var result = await handler.Handle(new SigninUserRequestDto(user.Email.Value, "Passw0rd!"), CancellationToken.None);
+
+        Assert.True(result.IsSucceeded);
+        Assert.Equal(1, unitOfWork.SaveChangesCalls);
+        Assert.Equal(1, jwtProvider.GenerateTokenCalls);
+        Assert.IsType<Domain.Users.Events.UserSignedInEvent>(Assert.Single(user.GetDomainEvents()));
+    }
+
+    [Fact]
+    public async Task SigninUserUseCaseHandler_ShouldNotReturnToken_WhenSignInEventCannotBePersisted()
+    {
+        var user = CreateUser("john.signin.failure@example.com");
+        user.ClearDomainEvents();
+        var jwtProvider = new FakeJwtProvider();
+        var handler = CreateSigninHandler(
+            new FakeMediator((_, _) => Result.Success(user)),
+            new FakePasswordHasherProvider(Result.Success()),
+            jwtProvider,
+            new FakeUnitOfWork(new InvalidOperationException("Database unavailable")));
+
+        var result = await handler.Handle(new SigninUserRequestDto(user.Email.Value, "Passw0rd!"), CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(UserErrors.SigninPersistenceFailed, result.Error);
+        Assert.Equal(0, jwtProvider.GenerateTokenCalls);
+    }
+
     private static THandler CreateHandler<THandler>(string fullTypeName, params object[] constructorArgs)
     {
         var applicationAssembly = typeof(VaultHistory.User.Application.DependencyInjection).Assembly;
         var handlerType = applicationAssembly.GetType(fullTypeName, throwOnError: true)!;
         return (THandler)Activator.CreateInstance(handlerType, constructorArgs)!;
+    }
+
+    private static IUseCaseHandler<SigninUserRequestDto, SigninUserResponseDto> CreateSigninHandler(
+        IMediator mediator,
+        IPasswordHasherProvider passwordHasherProvider,
+        IJwtProvider jwtProvider,
+        IUnitOfWork unitOfWork)
+    {
+        var applicationAssembly = typeof(VaultHistory.User.Application.DependencyInjection).Assembly;
+        var handlerType = applicationAssembly.GetType("VaultHistory.User.Application.UseCases.SigninUser.SigninUserUseCaseHandler", throwOnError: true)!;
+        var nullLoggerType = typeof(NullLogger<>).MakeGenericType(handlerType);
+        var logger = nullLoggerType.GetField("Instance")!.GetValue(null)!;
+
+        return (IUseCaseHandler<SigninUserRequestDto, SigninUserResponseDto>)Activator.CreateInstance(
+            handlerType,
+            mediator,
+            passwordHasherProvider,
+            jwtProvider,
+            unitOfWork,
+            logger)!;
     }
 
     private static Domain.Users.User CreateUser(string email)
@@ -158,15 +230,70 @@ public sealed class ApplicationHandlersTests
         return Domain.Users.User.Create(data).Value;
     }
 
-    private sealed class FakeUnitOfWork : IUnitOfWork
+    private sealed class FakeUnitOfWork(Exception? exception = null) : IUnitOfWork
     {
         public int SaveChangesCalls { get; private set; }
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             SaveChangesCalls++;
+            if (exception is not null)
+            {
+                throw exception;
+            }
+
             return Task.FromResult(1);
         }
+    }
+
+    private sealed class FakeMediator(Func<object, CancellationToken, object?> sendHandler) : IMediator
+    {
+        public Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : IRequest
+        {
+            sendHandler(request!, cancellationToken);
+            return Task.CompletedTask;
+        }
+
+        public Task<object?> Send(object request, CancellationToken cancellationToken = default) => Task.FromResult(sendHandler(request, cancellationToken));
+
+        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default) =>
+            Task.FromResult((TResponse)sendHandler(request, cancellationToken)!);
+
+        public Task Publish(object notification, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default) where TNotification : INotification => Task.CompletedTask;
+
+        public async IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            yield break;
+        }
+
+        public async IAsyncEnumerable<object?> CreateStream(object request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            yield break;
+        }
+    }
+
+    private sealed class FakePasswordHasherProvider(Result verificationResult) : IPasswordHasherProvider
+    {
+        public PasswordHasherResult HashPassword(string password) => throw new NotSupportedException();
+
+        public Result VerifyPassword(string password, string hash, string salt) => verificationResult;
+
+        public Result ValidatePassword(string password) => throw new NotSupportedException();
+    }
+
+    private sealed class FakeJwtProvider : IJwtProvider
+    {
+        public int GenerateTokenCalls { get; private set; }
+
+        public JwtGenerateTokenResult GenerateToken(Domain.Users.User user)
+        {
+            GenerateTokenCalls++;
+            return new JwtGenerateTokenResult("token", DateTime.UtcNow.AddHours(1));
+        }
+
+        public Result<ClaimsPrincipal> ValidateToken(string token) => throw new NotSupportedException();
     }
 
     private sealed class FakeUserRepository : IUserRepository
