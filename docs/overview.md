@@ -7,4 +7,4 @@ User is the .NET 10 API for accounts, authentication and the transactional outbo
 - Local commands: `dotnet restore`, `dotnet build`, `dotnet test`
 - Central Docker environment: [Vault.History.System](https://github.com/CarlosSV923/Vault.History.System)
 
-Configuration is read from `src/VaultHistory.User.Api/Configurations` and environment variables. Keep connection strings and JWT keys out of versioned files. User owns EF Core migrations for `users` and `outbox_messages`; Jobs only reads the shared schema through Prisma.
+Configuration is read from `src/VaultHistory.User.Api/Configurations` and environment variables. Keep connection strings and JWT keys out of versioned files. User owns EF Core migrations for `users`, `outbox_messages`, and the Notification `notification_checkpoints` table; Jobs only reads the shared schema through Prisma.
