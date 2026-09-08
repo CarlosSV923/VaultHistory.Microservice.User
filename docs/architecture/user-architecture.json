@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "User Microservice Architecture",
+    "quality_profile": "showcase",
+    "output": "user-architecture.html",
+    "views": [
+      { "id": "request-path", "label": "HTTP request path", "focus": ["client", "api", "application", "domain"], "note": "Controllers delegate authenticated requests to application use cases and the isolated domain model." },
+      { "id": "persistence", "label": "Persistence and outbox", "focus": ["api", "infrastructure", "postgres"], "note": "Entity Framework Core persists users and outbox messages in one PostgreSQL transaction." }
+    ]
+  },
+  "components": [
+    { "id": "client", "type": "frontend", "label": "Client applications", "sublabel": "HTTP and JWT", "pos": [40, 280], "size": [150, 64] },
+    { "id": "api", "type": "backend", "label": "User API", "sublabel": "ASP.NET Core controllers", "pos": [260, 280], "size": [160, 64] },
+    { "id": "application", "type": "backend", "label": "Application", "sublabel": "use cases and validation", "pos": [490, 190], "size": [160, 64] },
+    { "id": "domain", "type": "backend", "label": "Domain", "sublabel": "users and domain events", "pos": [490, 370], "size": [160, 64] },
+    { "id": "infrastructure", "type": "backend", "label": "Infrastructure", "sublabel": "EF Core and repositories", "pos": [720, 280], "size": [170, 64] },
+    { "id": "postgres", "type": "database", "label": "PostgreSQL", "sublabel": "users and outbox messages", "pos": [960, 280], "size": [170, 64] }
+  ],
+  "connections": [
+    { "id": "client-api", "from": "client", "to": "api", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "api-application", "from": "api", "to": "application", "label": "commands and queries", "fromSide": "right", "toSide": "left", "labelAt": [455, 268] },
+    { "id": "application-domain", "from": "application", "to": "domain", "label": "domain behavior", "fromSide": "bottom", "toSide": "top", "labelAt": [570, 268] },
+    { "id": "application-infrastructure", "from": "application", "to": "infrastructure", "label": "ports", "fromSide": "right", "toSide": "left" },
+    { "id": "infrastructure-postgres", "from": "infrastructure", "to": "postgres", "label": "EF Core", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "API", "items": ["Provides authentication and user endpoints.", "JWT is issued only after a successful sign-in flow."] },
+    { "dot": "violet", "title": "DDD layers", "items": ["Domain has no infrastructure dependency.", "Application coordinates use cases through ports."] },
+    { "dot": "emerald", "title": "Outbox", "items": ["Sign-in events are stored with user changes.", "Jobs later reads the shared outbox table."] }
+  ]
+}
