@@ -12,6 +12,9 @@ namespace VaultHistory.User.Application.UseCases.GetUserById
         string LastName,
         string Email,
         DateOnly? BirthDate,
-        bool IsActive
+        bool IsActive,
+        bool Notification = false,
+        string? Theme = null,
+        string? Character = null
     );   
 }

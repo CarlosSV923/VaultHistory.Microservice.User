@@ -31,6 +31,7 @@ public sealed class ExceptionHandlerTests
         Assert.Equal("ValidationFailure", payload.RootElement.GetProperty("type").GetString());
         Assert.Equal("Validation error", payload.RootElement.GetProperty("title").GetString());
         Assert.Equal("Han ocurrido uno o mas errores", payload.RootElement.GetProperty("detail").GetString());
+        Assert.Equal("ValidationFailure", payload.RootElement.GetProperty("code").GetString());
         Assert.Equal(JsonValueKind.Array, payload.RootElement.GetProperty("errors").ValueKind);
     }
 
@@ -55,5 +56,6 @@ public sealed class ExceptionHandlerTests
         Assert.Equal("ServerError", payload.RootElement.GetProperty("type").GetString());
         Assert.Equal("An error occurred while processing your request.", payload.RootElement.GetProperty("title").GetString());
         Assert.Equal("An unexpected error occurred. Please try again later.", payload.RootElement.GetProperty("detail").GetString());
+        Assert.Equal("ServerError", payload.RootElement.GetProperty("code").GetString());
     }
 }

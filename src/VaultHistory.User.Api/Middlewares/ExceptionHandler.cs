@@ -35,6 +35,8 @@ namespace VaultHistory.User.Api.Middlewares
                     problemDetails.Extensions.Add("errors", exceptionDetails.Errors);
                 }
 
+                problemDetails.Extensions.Add("code", exceptionDetails.Type);
+
                 context.Response.StatusCode = problemDetails.Status.Value;
 
                 await context.Response.WriteAsJsonAsync(problemDetails);

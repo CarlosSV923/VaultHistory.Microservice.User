@@ -19,10 +19,20 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         IUserContextProvider userContextProvider
     ) : ControllerBase
     {
+        private IActionResult Failure(Error error)
+        {
+            var statusCode = UserErrorStatusMapper.ToStatusCode(error);
+            return statusCode == StatusCodes.Status400BadRequest
+                ? BadRequest(error)
+                : StatusCode(statusCode, error);
+        }
+
         [HttpDelete]
         [JwtAuthorize]
         [ProducesResponseType(typeof(DeactivateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeactivateUser(CancellationToken cancellationToken)
         {
@@ -33,7 +43,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Failure(response.Error);
             }
 
             return Ok(UserMappers.Map(response.Value));
@@ -43,6 +53,8 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [JwtAuthorize]
         [ProducesResponseType(typeof(ChangePasswordResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
@@ -52,7 +64,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Failure(response.Error);
             }
 
             return Ok(UserMappers.Map(response.Value));
@@ -62,18 +74,19 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [JwtAuthorize]
         [ProducesResponseType(typeof(GetByIdResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetById(CancellationToken cancellationToken)
         {
             var id = userContextProvider.GetUserId();
-            Console.WriteLine($"User ID from context: {id}");
             var request = new GetByIdRequest(id);
             var useCaseInput = UserMappers.Map(request);
             var response = await mediator.Send(useCaseInput, cancellationToken);
 
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Failure(response.Error);
             }
 
             return Ok(UserMappers.Map(response.Value));
@@ -83,6 +96,9 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [JwtAuthorize]
         [ProducesResponseType(typeof(GetByEmailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByEmail([FromQuery] string email, CancellationToken cancellationToken)
         {
@@ -93,7 +109,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Failure(response.Error);
             }
 
             return Ok(UserMappers.Map(response.Value));
@@ -112,7 +128,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Failure(response.Error);
             }
 
             return Ok(UserMappers.Map(response.Value));
@@ -122,6 +138,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [AllowAnonymous]
         [ProducesResponseType(typeof(SignupResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Signup([FromBody] SignupRequest request, CancellationToken cancellationToken)
         {
@@ -130,7 +147,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Failure(response.Error);
             }
 
             return Ok(UserMappers.Map(response.Value));
@@ -140,6 +157,8 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [JwtAuthorize]
         [ProducesResponseType(typeof(UpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update([FromBody] UpdateRequest request,
             CancellationToken cancellationToken)
@@ -150,7 +169,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Failure(response.Error);
             }
 
             return Ok(UserMappers.Map(response.Value));

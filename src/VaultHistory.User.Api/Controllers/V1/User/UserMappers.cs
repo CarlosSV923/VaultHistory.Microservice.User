@@ -36,10 +36,28 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
         // Mappers UseCase ResponseDto -> Response
         public static GetByIdResponse Map(GetUserByIdResponseDto response) =>
-            new(response.UserId, response.FirstName, response.LastName, response.Email, response.BirthDate ?? default, response.IsActive);
+            new(
+                response.UserId,
+                response.FirstName,
+                response.LastName,
+                response.Email,
+                response.BirthDate,
+                response.IsActive,
+                response.Notification,
+                response.Theme,
+                response.Character);
         
         public static GetByEmailResponse Map(GetUserByEmailResponseDto response) =>
-            new(response.UserId, response.FirstName, response.LastName, response.Email, response.BirthDate ?? default, response.IsActive);
+            new(
+                response.UserId,
+                response.FirstName,
+                response.LastName,
+                response.Email,
+                response.BirthDate,
+                response.IsActive,
+                response.Notification,
+                response.Theme,
+                response.Character);
 
         public static SigninResponse Map(SigninUserResponseDto response) =>
             new(response.Token, response.Expiration);
