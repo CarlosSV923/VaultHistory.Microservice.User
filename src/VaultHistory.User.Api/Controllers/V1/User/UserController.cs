@@ -33,7 +33,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeactivateUser(CancellationToken cancellationToken)
         {
             var id = userContextProvider.GetUserId();
@@ -55,7 +55,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
             var id = userContextProvider.GetUserId();
@@ -76,7 +76,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetById(CancellationToken cancellationToken)
         {
             var id = userContextProvider.GetUserId();
@@ -99,7 +99,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByEmail([FromQuery] string email, CancellationToken cancellationToken)
         {
             var id = userContextProvider.GetUserId();
@@ -119,7 +119,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [AllowAnonymous]
         [ProducesResponseType(typeof(SigninResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Signin([FromBody] SigninRequest request,   
             CancellationToken cancellationToken)
         {
@@ -139,7 +139,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [ProducesResponseType(typeof(SignupResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Signup([FromBody] SignupRequest request, CancellationToken cancellationToken)
         {
             var useCaseInput = UserMappers.Map(request);
@@ -159,7 +159,7 @@ namespace VaultHistory.User.Api.Controllers.V1.User
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update([FromBody] UpdateRequest request,
             CancellationToken cancellationToken)
         {
