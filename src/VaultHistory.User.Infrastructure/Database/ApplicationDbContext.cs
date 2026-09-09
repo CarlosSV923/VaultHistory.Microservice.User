@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VaultHistory.User.Domain.Abstractions;
 using VaultHistory.User.Infrastructure.Outbox;
-using Newtonsoft.Json;
 using VaultHistory.User.Application.Exceptions;
 using VaultHistory.User.Domain.Users.Events;
 
@@ -29,22 +28,13 @@ namespace VaultHistory.User.Infrastructure.Database
                 {
                     Id = Guid.NewGuid(),
                     Type = e.GetType().Name,
-                    Payload = SerializePayload(e),
+                    Payload = OutboxPayloadSerializer.Serialize(e),
                     OccurredOn = e is UserSignedInEvent signedIn ? signedIn.OccurredOn : DateTime.UtcNow
                 })
                 .ToList();
 
             Set<OutboxMessage>().AddRange(outboxMessages);
         }
-
-        private static string SerializePayload(IDomainEvent domainEvent) => domainEvent switch
-        {
-            UserSignedInEvent signedIn => JsonConvert.SerializeObject(new { userId = signedIn.UserId.Value }),
-            _ => JsonConvert.SerializeObject(domainEvent, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.All
-            })
-        };
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
