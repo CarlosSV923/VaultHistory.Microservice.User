@@ -41,7 +41,10 @@ namespace VaultHistory.User.Application.UseCases.GetUserById
                 user.FullName.LastName,
                 user.Email.Value,
                 user.BirthDate,
-                user.IsActive
+                user.IsActive,
+                user.Notification,
+                user.Theme,
+                user.Character
             );
 
             logger.LogInformation("Returning user information for UserId '{UserId}': {UserId}", body.UserId, user.Id);

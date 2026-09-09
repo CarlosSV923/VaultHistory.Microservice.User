@@ -27,10 +27,8 @@ public sealed class ExceptionHandlerTests
 
         context.Response.Body.Position = 0;
         using var payload = await JsonDocument.ParseAsync(context.Response.Body);
-        Assert.Equal(400, payload.RootElement.GetProperty("status").GetInt32());
-        Assert.Equal("ValidationFailure", payload.RootElement.GetProperty("type").GetString());
-        Assert.Equal("Validation error", payload.RootElement.GetProperty("title").GetString());
-        Assert.Equal("Han ocurrido uno o mas errores", payload.RootElement.GetProperty("detail").GetString());
+        Assert.Equal("Error.ValidationError", payload.RootElement.GetProperty("code").GetString());
+        Assert.Equal("One or more validation errors occurred.", payload.RootElement.GetProperty("message").GetString());
         Assert.Equal(JsonValueKind.Array, payload.RootElement.GetProperty("errors").ValueKind);
     }
 
@@ -51,9 +49,7 @@ public sealed class ExceptionHandlerTests
 
         context.Response.Body.Position = 0;
         using var payload = await JsonDocument.ParseAsync(context.Response.Body);
-        Assert.Equal(500, payload.RootElement.GetProperty("status").GetInt32());
-        Assert.Equal("ServerError", payload.RootElement.GetProperty("type").GetString());
-        Assert.Equal("An error occurred while processing your request.", payload.RootElement.GetProperty("title").GetString());
-        Assert.Equal("An unexpected error occurred. Please try again later.", payload.RootElement.GetProperty("detail").GetString());
+        Assert.Equal("Error.InternalServerError", payload.RootElement.GetProperty("code").GetString());
+        Assert.Equal("An unexpected error occurred. Please try again later.", payload.RootElement.GetProperty("message").GetString());
     }
 }
