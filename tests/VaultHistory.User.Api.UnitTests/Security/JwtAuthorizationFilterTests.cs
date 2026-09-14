@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Security.Claims;
 using VaultHistory.User.Api.Security;
 using VaultHistory.User.Api.UnitTests.TestDoubles;
 using VaultHistory.User.Domain.Abstractions;
@@ -15,7 +16,7 @@ public sealed class JwtAuthorizationFilterTests
     [Fact]
     public async Task OnAuthorizationAsync_WhenAuthorizationHeaderIsMissing_ReturnsUnauthorized()
     {
-        var filter = new JwtAuthorizationFilter(NullLogger<JwtAuthorizationFilter>.Instance, new FakeJwtProvider(_ => Result.Success()));
+        var filter = new JwtAuthorizationFilter(NullLogger<JwtAuthorizationFilter>.Instance, new FakeJwtProvider(_ => Result.Success(new ClaimsPrincipal())));
         var context = CreateAuthorizationFilterContext();
 
         await filter.OnAuthorizationAsync(context);
@@ -32,7 +33,7 @@ public sealed class JwtAuthorizationFilterTests
     {
         var filter = new JwtAuthorizationFilter(
             NullLogger<JwtAuthorizationFilter>.Instance,
-            new FakeJwtProvider(_ => Result.Failure(new Error("Jwt.InvalidToken", "Token invalido"))));
+            new FakeJwtProvider(_ => Result.Failure<ClaimsPrincipal>(new Error("Jwt.InvalidToken", "Token invalido"))));
         var context = CreateAuthorizationFilterContext();
         context.HttpContext.Request.Headers.Authorization = "Bearer invalid-token";
 
@@ -48,7 +49,7 @@ public sealed class JwtAuthorizationFilterTests
     [Fact]
     public async Task OnAuthorizationAsync_WhenTokenIsValid_DoesNotSetResult()
     {
-        var filter = new JwtAuthorizationFilter(NullLogger<JwtAuthorizationFilter>.Instance, new FakeJwtProvider(_ => Result.Success()));
+        var filter = new JwtAuthorizationFilter(NullLogger<JwtAuthorizationFilter>.Instance, new FakeJwtProvider(_ => Result.Success(new ClaimsPrincipal())));
         var context = CreateAuthorizationFilterContext();
         context.HttpContext.Request.Headers.Authorization = "Bearer valid-token";
 

@@ -7,10 +7,11 @@ namespace VaultHistory.User.Infrastructure.Database.ModelBuilders
     {
         public void Configure(EntityTypeBuilder<Domain.Users.User> builder)
         {
-            builder.ToTable("Users");
+            builder.ToTable("users");
             builder.HasKey(u => u.Id);
 
             builder.Property(x => x.Id)
+                .HasColumnName("id")
                 .IsRequired()
                 .HasConversion(
                     id => id.Value,
@@ -18,46 +19,73 @@ namespace VaultHistory.User.Infrastructure.Database.ModelBuilders
                 .ValueGeneratedNever();
             
             builder.Property(u => u.IsActive)
-                .IsRequired();
+                .HasColumnName("isActive")
+                .IsRequired()
+                .HasDefaultValue(true);
             
             builder.Property(u => u.CreatedAt)
+                .HasColumnName("createdAt")
+                .HasPrecision(3)
                 .IsRequired();
             
             builder.Property(u => u.UpdatedAt)
+                .HasColumnName("updatedAt")
+                .HasPrecision(3)
                 .IsRequired(false);
 
             builder.Property(u => u.BirthDate)
+                .HasColumnName("birthDate")
+                .HasConversion(
+                    date => date.HasValue
+                        ? DateTime.SpecifyKind(date.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc)
+                        : (DateTime?)null,
+                    date => date.HasValue ? DateOnly.FromDateTime(date.Value) : null)
+                .HasColumnType("timestamp(3) with time zone")
                 .IsRequired(false);
+
+            builder.Property(u => u.Notification)
+                .HasColumnName("notification")
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            builder.Property(u => u.NotificationStatus)
+                .HasColumnName("notificationStatus");
+
+            builder.Property(u => u.NotificationDate)
+                .HasColumnName("notificationDate")
+                .HasPrecision(3);
+
+            builder.Property(u => u.Theme)
+                .HasColumnName("theme");
+
+            builder.Property(u => u.Character)
+                .HasColumnName("character");
+
+            builder.Property(u => u.FullName)
+                .HasColumnName("fullname")
+                .HasConversion(
+                    fullName => fullName.GetFullName(),
+                    value => Domain.Users.FullName.FromPersistedValue(value))
+                .IsRequired();
 
             builder.OwnsOne(u => u.Email, e =>
             {
                 e.Property(p => p.Value)
-                    .HasColumnName("Email")
+                    .HasColumnName("email")
                     .IsRequired();
 
                 e.HasIndex(p => p.Value)
                     .IsUnique();
             });
             
-            builder.OwnsOne(u => u.FullName, fn =>
-            {
-                fn.Property(f => f.FirstName)
-                    .HasColumnName("FirstName")
-                    .IsRequired();
-                
-                fn.Property(f => f.LastName)
-                    .HasColumnName("LastName")
-                    .IsRequired();
-            });
-
             builder.OwnsOne(u => u.Password, p =>
             {
                 p.Property(p => p.Hash)
-                    .HasColumnName("PasswordHash")
+                    .HasColumnName("passwordHash")
                     .IsRequired();
                 
                 p.Property(p => p.Salt)
-                    .HasColumnName("PasswordSalt")
+                    .HasColumnName("passwordSalt")
                     .IsRequired();
             });
         }

@@ -47,7 +47,10 @@ namespace VaultHistory.User.Application.UseCases.GetUserByEmail
                 user.FullName.LastName,
                 user.Email.ToString(),
                 user.BirthDate,
-                user.IsActive
+                user.IsActive,
+                user.Notification,
+                user.Theme,
+                user.Character
             );
             logger.LogInformation("Returning user information for Email '{Email}': {UserId}", body.Email, user.Id);
             return Result.Success(response);

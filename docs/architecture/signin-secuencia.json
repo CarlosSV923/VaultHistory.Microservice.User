@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Secuencia de inicio de sesión y outbox",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [1080, 680]
+  },
+  "participants": [
+    { "id": "cliente", "type": "frontend", "label": "Cliente", "sublabel": "aplicación consumidora" },
+    { "id": "api", "type": "backend", "label": "User API", "sublabel": "UserController" },
+    { "id": "signin", "type": "backend", "label": "Caso de uso Signin", "sublabel": "MediatR + validación" },
+    { "id": "hasher", "type": "security", "label": "Password hasher", "sublabel": "verificación de hash" },
+    { "id": "postgres", "type": "database", "label": "PostgreSQL", "sublabel": "users + outbox_messages" },
+    { "id": "jwt", "type": "security", "label": "JWT provider", "sublabel": "token firmado" }
+  ],
+  "segments": [
+    { "from": 150, "to": 280, "label": "Autenticación" },
+    { "from": 300, "to": 460, "label": "Persistencia transaccional" },
+    { "from": 480, "to": 590, "label": "Respuesta" }
+  ],
+  "messages": [
+    { "from": "cliente", "to": "api", "y": 180, "label": "POST /api/v1/user/signin", "variant": "emphasis" },
+    { "from": "api", "to": "signin", "y": 222, "label": "SigninUserRequestDto", "variant": "default" },
+    { "from": "signin", "to": "postgres", "y": 264, "label": "buscar usuario por email", "variant": "default" },
+    { "from": "postgres", "to": "signin", "y": 306, "label": "usuario activo", "variant": "return" },
+    { "from": "signin", "to": "hasher", "y": 348, "label": "verificar contraseña", "variant": "security" },
+    { "from": "hasher", "to": "signin", "y": 390, "label": "credencial válida", "variant": "return" },
+    { "from": "signin", "to": "postgres", "y": 432, "label": "guardar UserSignedInEvent en outbox", "variant": "emphasis", "note": "El evento se agrega antes de SaveChangesAsync y queda en la misma transacción." },
+    { "from": "postgres", "to": "signin", "y": 474, "label": "commit confirmado", "variant": "return" },
+    { "from": "signin", "to": "jwt", "y": 516, "label": "generar token", "variant": "security" },
+    { "from": "jwt", "to": "signin", "y": 548, "label": "token + expiración", "variant": "return" },
+    { "from": "signin", "to": "api", "y": 570, "label": "SigninResponse", "variant": "return" },
+    { "from": "api", "to": "cliente", "y": 592, "label": "200 OK con JWT", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "api", "from": 174, "to": 597, "type": "backend" },
+    { "participant": "signin", "from": 216, "to": 576, "type": "backend" },
+    { "participant": "hasher", "from": 342, "to": 396, "type": "security" },
+    { "participant": "postgres", "from": 258, "to": 480, "type": "database" },
+    { "participant": "jwt", "from": 510, "to": 554, "type": "security" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Condición para emitir JWT",
+      "items": ["El token se genera solo después de confirmar la persistencia.", "Un error al guardar devuelve SigninPersistenceFailed."]
+    },
+    {
+      "dot": "violet",
+      "title": "Outbox transaccional",
+      "items": ["ApplicationDbContext convierte eventos de dominio en mensajes PENDING.", "El payload de inicio de sesión contiene userId, no contraseña ni token."]
+    }
+  ]
+}

@@ -7,7 +7,10 @@ namespace VaultHistory.User.Application.UseCases.SignupUser
         string Password,
         string FirstName,
         string LastName,
-        DateOnly? DateOfBirth
+        DateOnly? DateOfBirth,
+        bool Notification = false,
+        string? Theme = null,
+        string? Character = null
     ) : IUseCase<SignupUserResponseDto>;
 
     public record SignupUserResponseDto(

@@ -6,7 +6,10 @@ namespace VaultHistory.User.Application.UseCases.UpdateUser
         string UserId,
         string? FirstName,
         string? LastName,
-        DateOnly? DateOfBirth
+        DateOnly? DateOfBirth,
+        bool? Notification = null,
+        string? Theme = null,
+        string? Character = null
     ) : IUseCase<UpdateUserResponseDto>;
 
     public record UpdateUserResponseDto(

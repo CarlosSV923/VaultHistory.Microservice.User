@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using VaultHistory.User.Application.Providers.Jwt;
 using VaultHistory.User.Domain.Abstractions;
 
@@ -12,10 +13,10 @@ internal sealed class TestJwtProvider : IJwtProvider
         return new JwtGenerateTokenResult(ValidToken, DateTime.UtcNow.AddHours(1));
     }
 
-    public Result ValidateToken(string token)
+    public Result<ClaimsPrincipal> ValidateToken(string token)
     {
         return token == ValidToken
-            ? Result.Success()
-            : Result.Failure(new Error("Jwt.InvalidToken", "Invalid test token"));
+            ? Result.Success(new ClaimsPrincipal(new ClaimsIdentity("Test")))
+            : Result.Failure<ClaimsPrincipal>(new Error("Jwt.InvalidToken", "Invalid test token"));
     }
 }

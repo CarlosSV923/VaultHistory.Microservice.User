@@ -52,8 +52,8 @@ public sealed class SaveChangesAsyncTests(PostgresFixture fixture)
             .FirstOrDefaultAsync(m => m.Id == message.Id);
 
         Assert.NotNull(persisted);
-        Assert.False(persisted!.Processed);
-        Assert.Null(persisted.ProcessedOn);
+        Assert.Equal("PENDING", persisted!.Status);
+        Assert.Null(persisted.UpdateAt);
         Assert.Null(persisted.Error);
     }
 }

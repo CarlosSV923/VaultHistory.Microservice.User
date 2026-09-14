@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Arquitectura de componentes del microservicio User",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/CarlosSV923/VaultHistory.Microservice.User.git",
+      "provider": "github",
+      "revision": "a4dde76aa72e1c2150c775dfc8b5220dc99d6846"
+    }
+  },
+  "layout": {
+    "mode": "grid",
+    "origin": [36, 130],
+    "cols": 5,
+    "cellW": 147,
+    "cellH": 64,
+    "gapX": 36,
+    "gapY": 80
+  },
+  "components": [
+    {
+      "id": "cliente",
+      "type": "frontend",
+      "label": "Clientes",
+      "sublabel": "consumen la API HTTP",
+      "col": 0,
+      "row": 1,
+      "sources": [{ "path": "src/VaultHistory.User.Api/Controllers/V1/User/UserController.cs", "label": "endpoints" }]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "User API",
+      "sublabel": "ASP.NET Core · controllers",
+      "col": 1,
+      "row": 1,
+      "sources": [{ "path": "src/VaultHistory.User.Api/Program.cs", "label": "host" }]
+    },
+    {
+      "id": "aplicacion",
+      "type": "backend",
+      "label": "Capa Application",
+      "sublabel": "MediatR · casos de uso",
+      "col": 2,
+      "row": 1,
+      "sources": [{ "path": "src/VaultHistory.User.Application/DependencyInjection.cs", "label": "registro" }]
+    },
+    {
+      "id": "dominio",
+      "type": "backend",
+      "label": "Capa Domain",
+      "sublabel": "User · value objects · eventos",
+      "col": 2,
+      "row": 0,
+      "sources": [{ "path": "src/VaultHistory.User.Domain/Users/User.cs", "label": "agregado" }]
+    },
+    {
+      "id": "infraestructura",
+      "type": "backend",
+      "label": "Capa Infrastructure",
+      "sublabel": "EF Core · repositorios · outbox",
+      "col": 3,
+      "row": 1,
+      "sources": [{ "path": "src/VaultHistory.User.Infrastructure/DependencyInjection.cs", "label": "persistencia" }]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "users · outbox_messages",
+      "col": 4,
+      "row": 1,
+      "sources": [{ "path": "src/VaultHistory.User.Api/Program.cs", "line": 34, "end_line": 35, "label": "propiedad de esquema" }]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "Microservicio VaultHistory.User",
+      "wraps": ["api", "aplicacion", "dominio", "infraestructura"],
+      "pad": 22
+    }
+  ],
+  "connections": [
+    { "id": "cliente-api", "from": "cliente", "to": "api", "label": "HTTPS /api/v1/user", "variant": "emphasis", "labelAt": [188, 348] },
+    { "id": "api-aplicacion", "from": "api", "to": "aplicacion", "label": "MediatR" },
+    { "id": "aplicacion-dominio", "from": "aplicacion", "to": "dominio", "label": "reglas y eventos de dominio", "fromSide": "top", "toSide": "bottom" },
+    { "id": "aplicacion-infraestructura", "from": "aplicacion", "to": "infraestructura", "label": "repositorio / UoW", "labelAt": [554, 348] },
+    { "id": "infraestructura-postgres", "from": "infraestructura", "to": "postgres", "label": "EF Core / Npgsql", "variant": "emphasis", "labelAt": [737, 348] }
+  ]
+}

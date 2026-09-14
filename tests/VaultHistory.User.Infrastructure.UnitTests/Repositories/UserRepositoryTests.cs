@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using VaultHistory.User.Domain.Users;
 using VaultHistory.User.Domain.Users.Interfaces;
 using VaultHistory.User.Domain.Users.ValueObjects;
 using VaultHistory.User.Infrastructure;
 using VaultHistory.User.Infrastructure.Database;
+using VaultHistory.User.Domain.Users.Events;
+using VaultHistory.User.Infrastructure.Outbox;
 
 namespace VaultHistory.User.Infrastructure.UnitTests.Repositories;
 
@@ -24,6 +27,16 @@ public sealed class UserRepositoryTests
         Assert.NotNull(loaded);
         Assert.Equal(user.Id, loaded!.Id);
         Assert.Equal("john.doe@example.com", loaded.Email.Value);
+    }
+
+    [Fact]
+    public void CreateUserOutboxPayload_ShouldContainAnExplicitUserId()
+    {
+        var user = CreateUser("welcome@example.com");
+        var payload = JObject.Parse(OutboxPayloadSerializer.Serialize(new CreateUserEvent(user.Id)));
+
+        Assert.Equal(user.Id.Value.ToString(), payload.Value<string>("userId"));
+        Assert.Null(payload["UserId"]);
     }
 
     [Fact]

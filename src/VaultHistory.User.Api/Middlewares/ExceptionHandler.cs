@@ -1,6 +1,6 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc;
 using VaultHistory.User.Application.Exceptions;
+using VaultHistory.User.Api.Utils;
 
 namespace VaultHistory.User.Api.Middlewares
 {
@@ -21,23 +21,11 @@ namespace VaultHistory.User.Api.Middlewares
 
                 var exceptionDetails = GetExceptionDetails(ex);
 
-                var problemDetails = new ProblemDetails
-                {
-                    Status = exceptionDetails.StatusCode,
-                    Type = exceptionDetails.Type,
-                    Title = exceptionDetails.Title,
-                    Detail = exceptionDetails.Details,
-                    Instance = context.Request.Path
-                };
-
-                if (exceptionDetails.Errors != null)
-                {
-                    problemDetails.Extensions.Add("errors", exceptionDetails.Errors);
-                }
-
-                context.Response.StatusCode = problemDetails.Status.Value;
-
-                await context.Response.WriteAsJsonAsync(problemDetails);
+                context.Response.StatusCode = exceptionDetails.StatusCode;
+                await context.Response.WriteAsJsonAsync(new ApiErrorResponse(
+                    exceptionDetails.Code,
+                    exceptionDetails.Message,
+                    exceptionDetails.Errors));
 
             }
         }
@@ -48,15 +36,13 @@ namespace VaultHistory.User.Api.Middlewares
             {
                 ValidationException validationException => new ExceptionDetails(
                     (int)HttpStatusCode.BadRequest,
-                    "ValidationFailure",
-                    "Validation error",
-                    "Han ocurrido uno o mas errores",
+                    "Error.ValidationError",
+                    "One or more validation errors occurred.",
                     validationException.Errors
                 ),
                 _ => new ExceptionDetails(
                     (int)HttpStatusCode.InternalServerError,
-                    "ServerError",
-                    "An error occurred while processing your request.",
+                    "Error.InternalServerError",
                     "An unexpected error occurred. Please try again later.",
                     null
                 )
@@ -66,9 +52,8 @@ namespace VaultHistory.User.Api.Middlewares
 
     internal record ExceptionDetails(
         int StatusCode,
-        string Type,
-        string Title,
-        string Details,
+        string Code,
+        string Message,
         IEnumerable<object>? Errors = null
     );
 }

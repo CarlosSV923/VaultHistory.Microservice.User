@@ -74,7 +74,10 @@ namespace VaultHistory.User.Application.UseCases.SignupUser
                     fullNameCreateResult.Value,
                     emailResult.Value,
                     passwordCreate.Value,
-                    body.DateOfBirth
+                    body.DateOfBirth,
+                    body.Notification,
+                    body.Theme,
+                    body.Character
                 )
             );
 

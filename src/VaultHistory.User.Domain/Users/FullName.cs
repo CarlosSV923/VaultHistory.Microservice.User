@@ -43,6 +43,21 @@ namespace VaultHistory.User.Domain.Users
             return Result.Success(new FullName(normalizedFirstName, normalizedLastName));
         }
 
+        /// <summary>
+        /// Rehydrates a name stored by the shared persistence schema.  That schema
+        /// keeps a name in one <c>fullname</c> column, while the domain keeps its
+        /// first and last-name invariants explicit.
+        /// </summary>
+        public static FullName FromPersistedValue(string value)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(value);
+
+            var parts = value.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length == 2
+                ? new FullName(parts[0], parts[1])
+                : new FullName(parts[0], string.Empty);
+        }
+
         public string GetFullName() => $"{FirstName} {LastName}";
         public override string ToString() => GetFullName();
     }

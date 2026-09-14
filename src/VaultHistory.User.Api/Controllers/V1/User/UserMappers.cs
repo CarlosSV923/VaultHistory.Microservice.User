@@ -22,10 +22,10 @@ namespace VaultHistory.User.Api.Controllers.V1.User
             new(request.Email, request.Password);
 
         public static SignupUserRequestDto Map(SignupRequest request) =>
-            new(request.Email, request.Password, request.FirstName, request.LastName, request.BirthDate);
+            new(request.Email, request.Password, request.FirstName, request.LastName, request.BirthDate, request.Notification, request.Theme, request.Character);
 
         public static UpdateUserRequestDto Map(string id, UpdateRequest request) =>
-            new(id, request.FirstName, request.LastName, request.BirthDate);
+            new(id, request.FirstName, request.LastName, request.BirthDate, request.Notification, request.Theme, request.Character);
 
         public static DeactivateUserRequestDto Map(DeactivateRequest request) =>
             new(request.Id);
@@ -36,10 +36,28 @@ namespace VaultHistory.User.Api.Controllers.V1.User
 
         // Mappers UseCase ResponseDto -> Response
         public static GetByIdResponse Map(GetUserByIdResponseDto response) =>
-            new(response.UserId, response.FirstName, response.LastName, response.Email, response.BirthDate ?? default, response.IsActive);
+            new(
+                response.UserId,
+                response.FirstName,
+                response.LastName,
+                response.Email,
+                response.BirthDate,
+                response.IsActive,
+                response.Notification,
+                response.Theme,
+                response.Character);
         
         public static GetByEmailResponse Map(GetUserByEmailResponseDto response) =>
-            new(response.UserId, response.FirstName, response.LastName, response.Email, response.BirthDate ?? default, response.IsActive);
+            new(
+                response.UserId,
+                response.FirstName,
+                response.LastName,
+                response.Email,
+                response.BirthDate,
+                response.IsActive,
+                response.Notification,
+                response.Theme,
+                response.Character);
 
         public static SigninResponse Map(SigninUserResponseDto response) =>
             new(response.Token, response.Expiration);

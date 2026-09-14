@@ -24,5 +24,6 @@ namespace VaultHistory.User.Domain.Users
         public static readonly Error InvalidUserId = new("User.InvalidUserId", "The provided user ID is invalid.");
         public static readonly Error InvalidPassword = new("User.InvalidPassword", "The provided password is incorrect.");
         public static readonly Error UserInactive = new("User.Inactive", "User is not active.");
+        public static readonly Error SigninPersistenceFailed = new("User.SigninPersistenceFailed", "The sign-in notification could not be recorded.");
     }
 }

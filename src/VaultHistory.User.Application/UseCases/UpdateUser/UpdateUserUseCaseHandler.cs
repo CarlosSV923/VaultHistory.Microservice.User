@@ -36,7 +36,10 @@ namespace VaultHistory.User.Application.UseCases.UpdateUser
 
             var user = userResult.Value;
 
-            var newFullNameResult = FullName.Create(body.FirstName, body.LastName);
+            var shouldUpdateFullName = body.FirstName is not null || body.LastName is not null;
+            var newFullNameResult = shouldUpdateFullName
+                ? FullName.Create(body.FirstName ?? user.FullName.FirstName, body.LastName ?? user.FullName.LastName)
+                : Result.Success(user.FullName);
             if (newFullNameResult.IsFailure)
             {
                 logger.LogWarning("Failed to create FullName for UserId '{UserId}': {ErrorMessage}", body.UserId, newFullNameResult.Error.Message);
@@ -44,9 +47,12 @@ namespace VaultHistory.User.Application.UseCases.UpdateUser
             }
 
             var dataUpdate = new UpdateUserData(
-                FullName: newFullNameResult.Value,
+                FullName: shouldUpdateFullName ? newFullNameResult.Value : null,
                 UpdateBirthDate: body.DateOfBirth.HasValue,
-                BirthDate: body.DateOfBirth
+                BirthDate: body.DateOfBirth,
+                Notification: body.Notification,
+                Theme: body.Theme,
+                Character: body.Character
             );
 
             var updateResult = user.Update(dataUpdate);
