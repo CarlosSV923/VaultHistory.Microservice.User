@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/CarlosSV923/VaultHistory.Microservice.User/compare/v1.1.0...v1.2.0) (2026-09-14)
+
+
+### Features
+
+* add notification checkpoint migration ([c0a335c](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/c0a335c57393bc72eeec5dacd3cdaa5058a9257f))
+* add notification checkpoint migration ([b9a580c](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/b9a580c73e479ed89394ff880b58651fe0515250))
+* complete user profile contracts ([57fbfb2](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/57fbfb25305acb8896a1d591c8e5a7effa92a376))
+* complete user profile contracts ([63683c9](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/63683c9698ee414935cc3cec98b936b9dff7c34c))
+* **database:** Model migration ajusted ([11e7355](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/11e735529c73b30e209f585d9e3a143ebae98caa))
+* persist notification recovery metadata ([c0cbd64](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/c0cbd64927c2397a2054bc6bdb4efcacd2702f18))
+* persist notification recovery metadata ([39c2097](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/39c2097b73cf3ad79758d407e3b3b5c14581437d))
+* record sign-in outbox event ([e959f53](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/e959f532d2439b604992c78d3ec38340a4adb019))
+* record sign-in outbox event ([1979bdf](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/1979bdf4ea0728ad1b47beb9b3f2f62e5ae6e127))
+* serialize create user outbox payload ([a4dde76](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/a4dde76aa72e1c2150c775dfc8b5220dc99d6846))
+* serialize create user outbox payload ([0886995](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/088699555582801ee0f267775c323f19f5417362))
+
+
+### Bug Fixes
+
+* standardize user error responses ([a51c8bc](https://github.com/CarlosSV923/VaultHistory.Microservice.User/commit/a51c8bc39dfbc71256e3d31aaee13ccaeb35e32a))
+
 ## [1.1.0](https://github.com/CarlosSV923/VaultHistory.Microservice.User/compare/v1.0.0...v1.1.0) (2026-05-15)
 
 
